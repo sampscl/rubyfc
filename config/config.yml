@@ -1,0 +1,5 @@
+---
+max_messages_per_tick: 1000
+unacknowledged_ticks_limit: 100
+max_game_ticks: 100
+log_level: :debug

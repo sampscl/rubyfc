@@ -6,10 +6,12 @@ module Paidgeeks
   # objects that are separated by newlines. This function will not block.
   # Parameters:
   # - stream => The IO object that the object will be read from
+  # - timeout => The amount of time (in seconds) to wait for a message, defaults to 0
   # Returns:
   # - An object from Paidgeeks.decode
-  def self.read_object(stream)
-    decode(read_line(stream,0))
+  def self.read_object(stream, timeout=0)
+    line = read_line(stream,timeout)
+    decode(line) if line
   end
 
   # Write an objec to a stream using Paidgeeks.encode()
@@ -50,6 +52,7 @@ module Paidgeeks
     rescue IO::WaitReadable
       retry
     end
+    data.strip! if data
     data
   end
 end

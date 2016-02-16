@@ -3,17 +3,13 @@ module Paidgeeks
   module RubyFC
     module Logging
       class BaseLogging < Aspector::Base
-        @@mutex = Mutex.new
         def self.write(msg=nil, &block)
-          @@mutex.synchronize do 
-            warn msg if msg 
-            block.call if block
-          end
+          warn msg if msg 
+          block.call if block
         end
 
         def self.log_level
-          # TODO: implement log levels
-          :debug
+          $log_level
         end
 
         def self.debug(msg=nil, &block)
