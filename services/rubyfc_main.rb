@@ -45,13 +45,13 @@ def parse_command_line
 end
 def main
   args = parse_command_line
-  if args[:game_playback_file_name].nil?
+  if args[:game_playback_file_name].nil? # no playback, run the game
     File.open(File.join(Paidgeeks::RubyFC::LOG_DIR, args[:game_log_file_name]),"w+t") do |log_file|
       gm = Paidgeeks::RubyFC::Managers::GameManager.new(args[:fleets], log_file, 1)
       gm.run_game_while { SIGNAL_QUEUE.count == 0 }
       gm.cleanup
     end
-  else
+  else # playback an old game, or dump a transcript
     File.open(args[:game_playback_file_name], "rt") do |playback_file|
       gm = Paidgeeks::RubyFC::Managers::GameManager.new([], $stdout, 1)
       gm.playback_while(playback_file) { SIGNAL_QUEUE.count == 0 } if !args[:just_show_transcript]

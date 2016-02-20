@@ -46,6 +46,27 @@ module Paidgeeks
           game_manager.tick_acknowledged_msg(msg)
         end
 
+        # Launch a ship. This message is ignored if 
+        # source_ship is unable to launch for some reason,
+        # Common reasons include: not enough energy, not
+        # enough credits, and wrong source ship (not all
+        # ships can launch other ships). The newly created
+        # ship will begin life at the current position of
+        # source_ship.
+        # Parameters:
+        # - msg => The message, in the form:
+        #   {
+        #     "type" => "launch",
+        #     "ship_type" => "ship type to launch",
+        #     "source_ship" => ship id of the ship that will launch ship_type
+        #   }
+        def launch(msg, fleet_manager, game_manager)
+          check_field_count(msg, 3)
+          check_field_of_type(msg, "ship_type", String)
+          check_field_of_type(msg, "source_ship", Fixnum)
+          game_manager.launch_msg(msg)
+        end
+
         # private stuff
         private
         def set_fleet(msg, fleet_manager)

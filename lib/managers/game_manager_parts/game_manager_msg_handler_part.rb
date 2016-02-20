@@ -2,7 +2,7 @@ require_relative '../../utilities/pass_through'
 module Paidgeeks
   module RubyFC
     module Managers
-      # extend the game manager interface
+      # All methods defined here (*_msg) are recorded in the game journal
       class GameManager
 
         def set_gid_msg(msg)
@@ -32,9 +32,16 @@ module Paidgeeks
         end
 
         def tick_acknowledged_msg(msg)
-          fleet = fleets[msg["fleet"]]          
+          fleet = fleets[msg["fleet"]]
           ack_tick = msg["tick"]
           fleets[msg["fleet"]].last_acknowledged_tick = msg["tick"] if ack_tick <= fleet.tick
+        end
+
+        def launch_msg(msg)
+          fleet = fleets[msg["fleet"]]
+          source_ship = ships[msg["source_ship"]]
+          return if source_ship.nil?
+          
         end
       end
     end
