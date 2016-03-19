@@ -10,3 +10,5 @@ field_width: 3600
 field_height: 2400
 missile_max_scan_range: 300.0 # intentionally here instead of template so missions can override
 max_scan_range: 1500.0  # intentionally here instead of template so missions can override
+missile_life_time: 30.0 # seconds
+rocket_life_time: 30.0 # seconds

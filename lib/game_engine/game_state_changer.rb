@@ -137,6 +137,8 @@ module Paidgeeks
         #     "fid" => fleet id,
         #     "mid" => mob id,
         #   }
+        # Returns:
+        # - mob => The mob that was just integrated
         def self.integrate_mob_msg(gs, msg)
 
           # clamp x and y to be inside the playfield (this is a case of legal motion creating illegal game state)
@@ -167,8 +169,13 @@ module Paidgeeks
           mob.turn_start_time = msg["turn_start_time"]
           mob.turn_stop_time = msg["turn_stop_time"]
           mob.turn_stop = msg["turn_stop"]
+
+          # notify fleet
           fleet = gs.fleets[msg["fid"]]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "integrate_mob_notify"}))
+
+          # return the mob
+          mob
         end
 
         # Report results of mission. This not really a game state change, but 
@@ -268,6 +275,21 @@ module Paidgeeks
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "create_mob_notify"}))
         end
 
+        # Delete a mob
+        # Parameters:
+        # - msg => A Hash: {
+        #   "type" => "delete_mob",
+        #   "mid" => Mob's mid,
+        #   "reason" => A string reason for deleting the mob
+        #   }
+        def self.delete_mob_msg(gs, msg)
+          mob = gs.mobs[msg["mid"]]
+          fleet = gs.fleets[mob.fid]
+          fleet[:mobs].delete(mob.mid)
+          gs.mobs.delete(mob.mid)
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "delete_mob_notify"}))
+        end
+
         # Scan
         # Parameters:
         # - msg => A Hash: {
@@ -333,7 +355,7 @@ module Paidgeeks
         end
 
         # Send game config to a fleet. This doesn't really
-        # change the gamestate, but it is here to  identify the game-to-fleet API. 
+        # change the gamestate, but it is here to identify the game-to-fleet API. 
         # This message is a bit different
         # than most because the message fields are open-ended. The game's 
         # "config.yml" file holds the default config, but missions will both

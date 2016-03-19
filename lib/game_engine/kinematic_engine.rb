@@ -46,7 +46,27 @@ module Paidgeeks
           @out_queues.each do |q| 
             begin
               loop do 
-                Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, q.deq(true))
+                msg = q.deq(true)
+                updated_mob = Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, msg)
+
+                # check expiration of missiles and rockets
+                if Paidgeeks::RubyRC::Templates::Missile == updated_mob.template 
+                  if create_time + gs.config[:missile_life_time] < updated_mob.valid_time
+                    Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
+                      "type" => "delete_mob",
+                      "mid" => updated_mob.mid,
+                      "reason" => "no fuel",
+                      })
+                  end
+                elsif Paidgeeks::RubyRC::Templates::Rocket == updated_mob.template
+                  if create_time + gs.config[:rocket_life_time] < updated_mob.valid_time
+                    Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
+                      "type" => "delete_mob",
+                      "mid" => updated_mob.mid,
+                      "reason" => "no fuel",
+                      })
+                  end
+                end
               end
             rescue ThreadError # silently consume queue is empty (deq(true) raises ThreadError when empty)
             end
@@ -58,6 +78,7 @@ module Paidgeeks
             to_time,mob = inq.deq
             break if to_time.nil? or mob.nil?
             updated_mob = mob.integrate(to_time)
+
             outq.enq({
               "type" => "integrate_mob",
               "mid" => updated_mob.mid,
