@@ -20,8 +20,12 @@ module Paidgeeks
   #   separated with newline characters. The stream will not be flushed
   #   by this function.
   # - object => The object to serialize. Only data will be serialized.
+  # Returns:
+  # - The encoded object as it was written to the stream
   def self.write_object(stream, object)
-    stream.write("#{encode(object)}\n")
+    encoded = encode(object)
+    stream.write("#{encoded}\n")
+    encoded
   end
   # Encode an object.
   # This will encode an object as a string so that 

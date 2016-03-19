@@ -27,6 +27,10 @@ module Paidgeeks
         def self.damage_caused
           1
         end
+
+        def self.can_scan
+          false
+        end
       end
     end
   end

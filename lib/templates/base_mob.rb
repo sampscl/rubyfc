@@ -49,6 +49,10 @@ module Paidgeeks
         def self.damage_caused
           0 # most mobs don't cause damage
         end
+
+        def self.can_scan
+          true
+        end
       end
     end
   end
