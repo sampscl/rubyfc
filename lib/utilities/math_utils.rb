@@ -88,7 +88,7 @@ module Paidgeeks
   # - m2 => mob2
   # Returns:
   # - Float => Time until point of closest approach. Will be negative
-  #   if in the past. Units are same as deniminator of velocity.
+  #   if in the past. Units are same as denominator of velocity.
   def ttg_pca_mobs(m1,m2)
     ttg_pca_angles(m1.x_pos,m1.y_pos,m1.heading,m1.velocity,m2.x_pos,m2.y_pos,m2.heading,m2.velocity)
   end

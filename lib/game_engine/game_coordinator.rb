@@ -133,7 +133,7 @@ module Paidgeeks
 
                 # end tick
                 # send fleet outputs
-                # check tick acknowledges
+                # read inputs and process for up to 1 second in order to receive tick acknowledgement
                 gs.fleets.each do |fid, fleet| 
                   fm = fleet[:manager]
                   next if :alive != fm.fleet_state

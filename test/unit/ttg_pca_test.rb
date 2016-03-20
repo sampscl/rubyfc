@@ -12,7 +12,7 @@ class TtgPcaTest < MiniTest::Test
 
     # 1
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1000,
       "y_pos" => 1000,
       "heading" => 0.0,
@@ -24,7 +24,7 @@ class TtgPcaTest < MiniTest::Test
 
     # 2
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1000,
       "y_pos" => 1500,
       "heading" => 0.0,
@@ -36,7 +36,7 @@ class TtgPcaTest < MiniTest::Test
 
     # 3
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1000,
       "y_pos" => 1500,
       "heading" => Paidgeeks::deg_to_rad(270.0),
@@ -48,7 +48,7 @@ class TtgPcaTest < MiniTest::Test
 
     # 4
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1001,
       "y_pos" => 1500,
       "heading" => Paidgeeks::deg_to_rad(270.0),
@@ -60,7 +60,7 @@ class TtgPcaTest < MiniTest::Test
 
     # 5
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1000,
       "y_pos" => 1500,
       "heading" => Paidgeeks::deg_to_rad(90.0),
@@ -72,10 +72,34 @@ class TtgPcaTest < MiniTest::Test
 
     # 6
     @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
-    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ # center
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
       "x_pos" => 1001,
       "y_pos" => 1501,
       "heading" => Paidgeeks::deg_to_rad(180.0),
+      "velocity" => 1.0,
+      "mid" => ndx,
+      "fid" => ndx,
+      })
+    ndx += 1
+
+    # 7
+    @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
+      "x_pos" => 1000,
+      "y_pos" => 1001,
+      "heading" => Paidgeeks::deg_to_rad(0.0),
+      "velocity" => 1.0,
+      "mid" => ndx,
+      "fid" => ndx,
+      })
+    ndx += 1
+
+    # 8
+    @gs.add_fleet(ndx, FleetManagerTestHelper.new(ndx), 0, $stdout)
+    @gs.mobs[ndx] = Paidgeeks::RubyFC::Mob.from_msg({ 
+      "x_pos" => 1001,
+      "y_pos" => 1000,
+      "heading" => Paidgeeks::deg_to_rad(90.0),
       "velocity" => 1.0,
       "mid" => ndx,
       "fid" => ndx,
@@ -90,5 +114,6 @@ class TtgPcaTest < MiniTest::Test
     assert(Paidgeeks::is_near(1.0,Paidgeeks::ttg_pca_mobs(@gs.mobs[4], @gs.mobs[1])), "Order does not matter.")
     assert(Paidgeeks::is_near(0.5,Paidgeeks::ttg_pca_mobs(@gs.mobs[4], @gs.mobs[5])), "2 mobs headed for each other will collide.")
     assert(Paidgeeks::is_near(1.0,Paidgeeks::ttg_pca_mobs(@gs.mobs[5], @gs.mobs[6])), "2 mobs headed for each other will collide (5,6).")
+    assert(Paidgeeks::is_near(-1.0,Paidgeeks::ttg_pca_mobs(@gs.mobs[7], @gs.mobs[8])), "2 mobs already past pca will have negative ttg (7,8).")
   end
 end

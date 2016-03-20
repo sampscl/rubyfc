@@ -12,3 +12,5 @@ missile_max_scan_range: 300.0 # intentionally here instead of template so missio
 max_scan_range: 1500.0  # intentionally here instead of template so missions can override
 missile_life_time: 30.0 # seconds
 rocket_life_time: 30.0 # seconds
+missile_detonate_radius: 10.0 # distance units
+rocket_detonate_radius: 10.0 # distance units

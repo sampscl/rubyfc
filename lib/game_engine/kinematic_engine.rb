@@ -50,7 +50,7 @@ module Paidgeeks
                 updated_mob = Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, msg)
 
                 # check expiration of missiles and rockets
-                if Paidgeeks::RubyRC::Templates::Missile == updated_mob.template 
+                if Paidgeeks::RubyFC::Templates::Missile == updated_mob.template 
                   if create_time + gs.config[:missile_life_time] < updated_mob.valid_time
                     Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
                       "type" => "delete_mob",
@@ -58,7 +58,7 @@ module Paidgeeks
                       "reason" => "no fuel",
                       })
                   end
-                elsif Paidgeeks::RubyRC::Templates::Rocket == updated_mob.template
+                elsif Paidgeeks::RubyFC::Templates::Rocket == updated_mob.template
                   if create_time + gs.config[:rocket_life_time] < updated_mob.valid_time
                     Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
                       "type" => "delete_mob",
