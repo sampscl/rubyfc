@@ -129,6 +129,23 @@ module Paidgeeks
           smp.set_speed_msg(msg, fm, gs)
         end
 
+        # Turn to a specific heading
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "turn_to",
+        #     "mid" => mob id of the ship to turn,
+        #     "heading" => final heading, in degrees, must be a Float (0.0, not 0)
+        #     "direction" => "clockwise" or "counterclockwise"
+        # }
+        def turn_to(msg, smp, fm, gs)
+          check_field_count(msg, 4)
+          check_field_of_type(msg, "mid", Fixnum)
+          check_field_of_type(msg, "heading", Float)
+          check_field_of_type(msg, "direction", String)
+          msg["fid"] = fm.fleet_id
+          smp.turn_to_msg(msg, fm, gs)
+        end
+
         # private stuff
         private
         def check_field_count(msg, count)

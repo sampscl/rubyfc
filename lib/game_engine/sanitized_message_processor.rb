@@ -3,24 +3,36 @@ require_relative './game_state_changer'
 module Paidgeeks
   module RubyFC
     module Engine
+      # This class processes the messages sanitized by the FleetManager. It will
+      # correct any message fields that are out of bounds (speed < 0, etc.) and
+      # will pass all state changes through the GameStateChanger. Also, if any
+      # message fields are illegal (e.g. attempt to control another fleet's ship), 
+      # this class will warn the offending fleet via the GameStateChanger and will
+      # not process that message.
+      # 
+      # Note that this class will change messages. This is unusual in RubyFC. Most
+      # code is purely functional. One day, the code for SanitizedMessageProcessor
+      # should be changed so that the original fleet message is intact and a new
+      # message created to pass to the GameStateChanger. For now, the logging aspect
+      # takes care of ensuring the original message is preserved.
       class SanitizedMessageProcessor
+        @@gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
 
         def set_fleet_metadata_msg(msg, fm, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
-          gsc::set_fleet_metadata_msg(gs, msg)
+          @@gsc::set_fleet_metadata_msg(gs, msg)
         end
 
         def tick_acknowledged_msg(msg, fm, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
-          gsc::tick_acknowledged_msg(gs, msg)
+          
+          @@gsc::tick_acknowledged_msg(gs, msg)
         end
 
         def launch_msg(msg, fm, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
+          
           origin_mob = gs.mobs[msg["source_ship"]]
 
           if origin_mob.nil? or origin_mob.fid != fm.fleet_id
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -33,7 +45,7 @@ module Paidgeeks
 
           case new_ship_klass
           when Paidgeeks::RubyFC::Templates::Rocket, Paidgeeks::RubyFC::Templates::Missile
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -42,7 +54,7 @@ module Paidgeeks
             return nil
           else # not a munition, attempt to create another ship
             if not origin_mob.template.can_create_others
-              gsc::warn_fleet(gs, {
+              @@gsc::warn_fleet(gs, {
                 "type" => "warn_fleet", 
                 "fid" => fm.fleet_id,
                 "original_message" => msg,
@@ -53,7 +65,7 @@ module Paidgeeks
           end # case new_ship_klass
 
           if gs.fleets[fm.fleet_id][:credits] < new_ship_klass.credit_cost
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -63,7 +75,7 @@ module Paidgeeks
           end
 
           if origin_mob.energy < new_ship_klass.energy_cost
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -75,17 +87,17 @@ module Paidgeeks
           # we're here: source_ship can launch new_ship_klass and fleet has enough credits,
           # and the origin_mob has enough energy, so we will deduct credits, remobe energy
           # and then launch a new ship. Yay!
-          gsc::reduce_credits_msg(gs, {
+          @@gsc::reduce_credits_msg(gs, {
             "type" => "reduce_credits",
             "fid" => fm.fleet_id,
             "amount" => new_ship_klass.credit_cost
             })
-          gsc::reduce_energy(gs, {
+          @@gsc::reduce_energy(gs, {
             "type" => "reduce_energy",
             "mid" => origin_mob.mid,
             "amount" => new_ship_klass.energy_cost,
             })
-          gsc::create_mob_msg(gs, {
+          @@gsc::create_mob_msg(gs, {
             "type" => "create_mob",
             "template" => new_ship_klass,
             "create_time" => gs.time,
@@ -107,11 +119,11 @@ module Paidgeeks
         end
 
         def fire_msg(msg, fn, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
+          
           origin_mob = gs.mobs[msg["source_ship"]]
 
           if origin_mob.nil? or origin_mob.fid != fm.fleet_id
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -125,7 +137,7 @@ module Paidgeeks
           case new_ship_klass
           when Paidgeeks::RubyFC::Templates::Rocket
             if not origin_mob.template.can_fire_rockets
-              gsc::warn_fleet(gs, {
+              @@gsc::warn_fleet(gs, {
                 "type" => "warn_fleet", 
                 "fid" => fm.fleet_id,
                 "original_message" => msg,
@@ -135,7 +147,7 @@ module Paidgeeks
             end
           when Paidgeeks::RubyFC::Templates::Missile
             if not origin_mob.template.can_fire_missiles
-              gsc::warn_fleet(gs, {
+              @@gsc::warn_fleet(gs, {
                 "type" => "warn_fleet", 
                 "fid" => fm.fleet_id,
                 "original_message" => msg,
@@ -144,7 +156,7 @@ module Paidgeeks
               return nil
             end
           else # not a munition
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -154,7 +166,7 @@ module Paidgeeks
           end # case new_ship_klass
 
           if gs.fleets[fm.fleet_id][:credits] < new_ship_klass.credit_cost
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -164,7 +176,7 @@ module Paidgeeks
           end
 
           if origin_mob.energy < new_ship_klass.energy_cost
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -176,17 +188,17 @@ module Paidgeeks
           # we're here: source_ship can launch new_ship_klass and fleet has enough credits,
           # and the origin_mob has enough energy, so we will deduct credits, remobe energy
           # and then launch a new ship. Yay!
-          gsc::reduce_credits_msg(gs, {
+          @@gsc::reduce_credits_msg(gs, {
             "type" => "reduce_credits",
             "fid" => fm.fleet_id,
             "amount" => new_ship_klass.credit_cost
             })
-          gsc::reduce_energy(gs, {
+          @@gsc::reduce_energy(gs, {
             "type" => "reduce_energy",
             "mid" => origin_mob.mid,
             "amount" => new_ship_klass.energy_cost,
             })
-          gsc::create_mob_msg(gs, {
+          @@gsc::create_mob_msg(gs, {
             "type" => "create_mob",
             "template" => new_ship_klass,
             "create_time" => gs.time,
@@ -208,11 +220,11 @@ module Paidgeeks
         end
 
         def scan_msg(msg, fm, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
+          
           origin_mob = gs.mobs[msg["source_ship"]]
 
           if msg["range"] <= 0.0
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -222,7 +234,7 @@ module Paidgeeks
           end
 
           if msg["azimuth"] < 0.0 or msg["azimuth"] >= 360.0
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -232,7 +244,7 @@ module Paidgeeks
           end
 
           if origin_mob.nil? or origin_mob.fid != fm.fleet_id
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -242,7 +254,7 @@ module Paidgeeks
           end
 
           if not origin_mob.template.can_scan
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -252,7 +264,7 @@ module Paidgeeks
           end
 
           if origin_mob.last_scan_tick == gs.tick
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -265,14 +277,14 @@ module Paidgeeks
             msg["range"] = gs.config[:missile_max_scan_range]
           end
 
-          gsc::scan_msg(gs, msg)
+          @@gsc::scan_msg(gs, msg)
         end
 
         def set_speed_msg(msg, fm, gs)
-          gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
+          
           mob = gs.mobs[msg["mid"]]
           if mob.nil? or mob.fid != fm.fleet_id
-            gsc::warn_fleet(gs, {
+            @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
@@ -288,7 +300,31 @@ module Paidgeeks
             msg["speed"] = mob.template.max_velocity
           end
           
-          gsc::set_speed_msg(gs, msg)
+          @@gsc::set_speed_msg(gs, msg)
+        end
+
+        def turn_to_msg(msg, fm, gs)
+          
+          mob = gs.mobs[msg["mid"]]
+          if mob.nil? or mob.fid != fm.fleet_id
+            @@gsc::warn_fleet(gs, {
+              "type" => "warn_fleet", 
+              "fid" => fm.fleet_id,
+              "original_message" => msg,
+              "warning" => "mid invalid"
+              })
+            return nil
+          end
+
+          hdg = msg["heading"]
+          while hdg < 0
+            hdg += 360.0
+          end
+          while hdg >= 360.0
+            hdg -= 360.0
+          end
+          msg["heading"] = hdg
+          @@gsc::turn_to_msg(gs, msg)
         end
       end
     end

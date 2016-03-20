@@ -12,7 +12,9 @@ module Paidgeeks
       # renamed to end with "_notify". This is to avoid ambiguity when looking at 
       # message traces.
       #
-      # Please note that the GameStateChanger class is, itself STATELESS. Keep it that way.
+      # Please note that the GameStateChanger class is, itself STATELESS. Keep it 
+      # that way. Also, note that GameStateChanger trusts its input. Callers are
+      # responsible for ensuring that all messages are actionable as-is.
       class GameStateChanger
 
         # Send a message to a fleet. This is here to ensure that all messages
@@ -88,7 +90,7 @@ module Paidgeeks
           gs.add_fleet(msg["fid"], mgr, msg["last_ack_tick"], msg["log_stream"])
         end
 
-        # Disqualify a fleet
+        # Disqualify a fleet, also destroys all fleet's mobs
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "disqualify_fleet",
@@ -103,6 +105,14 @@ module Paidgeeks
           fleet[:manager].fleet_metadata[:backtrace] = msg["backtrace"]
           fleet[:manager].fleet_metadata[:inspected_args] = msg["inspected_args"]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "disqualify_fleet_notify"}))
+          mids = fleet[:mobs].to_a
+          mids.each do |mid|
+            delete_mob_msg(gs, {
+              "type" => "delete_mob",
+              "mid" => mid,
+              "reason" => "fleet disqualified"
+              })
+          end
         end
 
         # Update the fleet state
@@ -386,6 +396,22 @@ module Paidgeeks
           mob.velocity = msg["speed"]          
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "set_speed_notify"}))
+        end
+
+        # Turn mob to a new heading
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "turn_to",
+        #     "mid" => mob id of the ship to turn,
+        #     "heading" => final heading, in degrees, must be a Float (0.0, not 0) and [0.0, 360.0)
+        #     "direction" => "clockwise" or "counterclockwise"
+        #     "fid" => fleet id
+        # }
+        def self.turn_to_msg(gs, msg)
+          mob = gs.mobs[msg["mid"]]
+          mob.turn_to(Paidgeeks::deg_to_rad(msg["heading"]))
+          fleet = gs.fleets[mob.fid]
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "turn_to_notify"}))
         end
       end
     end
