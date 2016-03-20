@@ -280,7 +280,7 @@ module Paidgeeks
         def self.create_mob_msg(gs, msg)
           mob = Paidgeeks::RubyFC::Mob.from_msg(msg)
           gs.mobs[mob.mid] = mob
-          gs.fleets[mob.fid][:mobs].add(mob)
+          gs.fleets[mob.fid][:mobs].add(mob.mid)
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "create_mob_notify"}))
         end
@@ -409,9 +409,27 @@ module Paidgeeks
         # }
         def self.turn_to_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
-          mob.turn_to(Paidgeeks::deg_to_rad(msg["heading"]))
+          mob = mob.turn_to(Paidgeeks::deg_to_rad(msg["heading"]), msg["direction"].to_sym)
+          gs.mobs[mob.mid] = mob
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "turn_to_notify"}))
+        end
+
+        # Turn mob forever so it flies in a circle
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "turn_to",
+        #     "mid" => mob id of the ship to turn,
+        #     "rate" => Turn rate, in degrees/second, must be a Float (0.0, not 0)
+        #     "direction" => "clockwise" or "counterclockwise"
+        #     "fid" => fleet id
+        # }
+        def self.turn_forever_msg(gs, msg)
+          mob = gs.mobs[msg["mid"]]
+          mob = mob.turn_forever(Paidgeeks::deg_to_rad(msg["rate"]), msg["direction"].to_sym)
+          fleet = gs.fleets[mob.fid]
+          gs.mobs[mob.mid] = mob
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "turn_forever_notify"}))
         end
       end
     end

@@ -11,7 +11,7 @@ module Paidgeeks
       :turn_rate,
       :valid_time,
       :turn_start_time, 
-      :turn_stop_time,
+      :turn_stop_time, # time to stop turning
       :turn_stop, # heading (radians)
       :template,
       :create_time,
@@ -54,6 +54,14 @@ module Paidgeeks
         Mob::copy(self).do_turn_to(new_heading_radians, direction)
       end
 
+      # Get a new Mob copied from this mob, only with a permanent
+      # turn set. This method is non-mutating
+      # Parameters:
+      # - rate => turn rate, must be >0 and <= template.max_turn_rate
+      def turn_forever(rate, direction=:clockwise)
+        Mob::copy(self).do_turn_forever(rate, direction)
+      end
+
       # Get a new mob copied from this mob, only integrated
       # This method is non-mutating.
       def integrate(to_time)
@@ -61,6 +69,22 @@ module Paidgeeks
       end
 
       protected
+      # this is a mutating method, and it returns self
+      def do_turn_forever(rate, direction)
+        if rate > self.template.max_turn_rate
+          rate = self.template.max_turn_rate
+        elsif rate < 0.0
+          rate = self.template.max_turn_rate
+        end
+        if :clockwise == direction
+          self.turn_rate = rate
+        else
+          self.turn_rate = -rate
+        end
+        self.turn_stop_time = Float::MAX
+        self
+      end
+
       # this is a mutating method, and it returns self
       def do_turn_to(new_heading_radians, direction)
         new_heading_radians = Paidgeeks.normalize_to_circle(new_heading_radians)

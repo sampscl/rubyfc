@@ -326,6 +326,34 @@ module Paidgeeks
           msg["heading"] = hdg
           @@gsc::turn_to_msg(gs, msg)
         end
+
+        def turn_forever_msg(msg, fm, gs)
+          mob = gs.mobs[msg["mid"]]
+          if mob.nil? or mob.fid != fm.fleet_id
+            @@gsc::warn_fleet(gs, {
+              "type" => "warn_fleet", 
+              "fid" => fm.fleet_id,
+              "original_message" => msg,
+              "warning" => "mid invalid"
+              })
+            return nil
+          end
+
+          rate = msg["rate"]
+          if rate < 0.0
+            @@gsc::warn_fleet(gs, {
+              "type" => "warn_fleet", 
+              "fid" => fm.fleet_id,
+              "original_message" => msg,
+              "warning" => "rate must be > 0.0"
+              })
+            return nil
+          end
+          if rate > mob.template.max_turn_rate
+            rate = mob.template.max_turn_rate
+          end
+          @@gsc::turn_forever_msg(gs, msg)
+        end
       end
     end
   end

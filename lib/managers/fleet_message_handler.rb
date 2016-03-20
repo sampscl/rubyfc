@@ -146,6 +146,23 @@ module Paidgeeks
           smp.turn_to_msg(msg, fm, gs)
         end
 
+        # Turn a mob so it moves in a circle
+        # Parameters: 
+        # - msg => A Hash: {
+        #     "type" => "turn_forever",
+        #     "mid" => mob id of the ship to turn,
+        #     "rate" => turn rate in degrees/second, must be > 0
+        #     "direction" => "clockwise" or "counterclockwise"
+        #  }
+        def turn_forever(msg, smp, fm, gs)
+          check_field_count(msg, 4)
+          check_field_of_type(msg, "mid", Fixnum)
+          check_field_of_type(msg, "rate", Float)
+          check_field_of_type(msg, "direction", String)
+          msg["fid"] = fm.fleet_id
+          smp.turn_forever_msg(msg, fm, gs)
+        end
+
         # private stuff
         private
         def check_field_count(msg, count)
