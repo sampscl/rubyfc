@@ -36,6 +36,10 @@ module Paidgeeks
         def self.hit_points
           3
         end
+
+        def self.collision_size
+          15.0
+        end
       end
     end
   end

@@ -161,10 +161,10 @@ module Paidgeeks
                   end
                 end
 
-                # evaluate mission
+                # evaluate mission, release cpu to help give fleets some time to do their fleet thing
                 break if gs.mission.mission_complete?(gs)
                 Thread.pass
-              end
+              end # end main game loop
 
               # generate mission report
               report = gs.mission.mission_report(gs)
@@ -179,8 +179,8 @@ module Paidgeeks
                   puts fm.fleet_metadata[:error]
                   puts fm.fleet_metadata[:backtrace] if fm.fleet_metadata[:backtrace]
                   puts fm.fleet_metadata[:inspected_args] if fm.fleet_metadata[:inspected_args]
-                end
-              end
+                end # end if fleet errored
+              end # end all fleets
 
               # cleanup
               ke.cleanup

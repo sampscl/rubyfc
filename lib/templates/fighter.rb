@@ -28,6 +28,10 @@ module Paidgeeks
         def self.credit_cost
           100
         end
+        
+        def self.collision_size
+          15.0
+        end
       end
     end
   end

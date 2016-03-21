@@ -37,6 +37,9 @@ module Paidgeeks
           10
         end
 
+        def self.collision_size
+          24.0
+        end
       end
     end
   end

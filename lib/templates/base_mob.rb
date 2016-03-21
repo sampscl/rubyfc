@@ -53,6 +53,10 @@ module Paidgeeks
         def self.can_scan
           true
         end
+
+        def self.collision_size
+          0.0 # from original AI fleet commander: the collision size is a square around each mob
+        end
       end
     end
   end
