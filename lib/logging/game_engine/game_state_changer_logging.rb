@@ -7,8 +7,13 @@ module Paidgeeks
           ALL_MSG_HANDLERS = /.*_msg$/
 
           around ALL_MSG_HANDLERS, method_arg: true do |method, proxy, gs, msg, &block|
-            if :debug == $log_level and (!msg.has_key?("type") or method.to_s != "#{msg["type"]}_msg")
-              raise ArgumentError.new("Missing or incorrect message type: #{msg.inspect}")
+            if :debug == $log_level 
+              if (!msg.has_key?("type") or method.to_s != "#{msg["type"]}_msg")
+                raise ArgumentError.new("Missing or incorrect message type: #{msg.inspect}")
+              end
+              if !msg.has_key?("fleet_source")
+                raise ArgumentError.new("All game state change messages require a fleet_source field: #{msg.inspect}")
+              end
             end
             Paidgeeks.write_object(gs.journal, msg)
 

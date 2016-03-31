@@ -29,6 +29,7 @@ module Paidgeeks
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "tick"
+        #     "fleet_source" => false | true,
         # }
         def self.tick_msg(gs, msg)
           gs.tick += 1
@@ -44,6 +45,7 @@ module Paidgeeks
         #     "type" => "warn_fleet",
         #     "original_message" => the original message hash that caused this warning,
         #     "warning" => text string describing the warning (e.g. "source_ship invalid")
+        #     "fleet_source" => false | true,
         #   }
         def self.warn_fleet(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -56,6 +58,7 @@ module Paidgeeks
         #     "type" => "tick_acknowledged",
         #     "tick" =>  tick,
         #     "fid" => fid,
+        #     "fleet_source" => false | true,
         #   }
         def self.tick_acknowledged_msg(gs, msg)
           gs.fleets[msg["fid"]][:last_ack_tick] = msg["tick"]
@@ -68,6 +71,7 @@ module Paidgeeks
         #     "author" => "Author's name", 
         #     "fleet_name" => "Name of the fleet",
         #     "fid" => fid,
+        #     "fleet_source" => false | true,
         #   }
         def self.set_fleet_metadata_msg(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -84,6 +88,7 @@ module Paidgeeks
         #     "ff" => fleet file to load
         #     "last_ack_tick" => initial value for the last acknowledged tick from this fleet
         #     "log_stream" => IO instance for fleet logging
+        #     "fleet_source" => false | true,
         #   }
         def self.add_fleet_msg(gs, msg)
           mgr = Paidgeeks::RubyFC::Managers::FleetManager.new(msg["ff"], msg["fid"], msg["log_stream"])
@@ -97,6 +102,7 @@ module Paidgeeks
         #     "error" => descriptive string of the error
         #     "backtrace" => String containing the call stack at the time of the error
         #     "inspected_args" => Array of any relevant arguments pertaining to the error
+        #     "fleet_source" => false | true,
         #   }
         def self.disqualify_fleet_msg(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -121,6 +127,7 @@ module Paidgeeks
         #     "type" => "fleet_state",
         #     "fid" => fleet id,
         #     "state" => Fleet state, see Fleet class docs for possible values.
+        #     "fleet_source" => false | true,
         #   }
         def self.fleet_state_msg(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -146,6 +153,7 @@ module Paidgeeks
         #     "turn_stop" => The time to stop turning in order to reach a specific heading,
         #     "fid" => fleet id,
         #     "mid" => mob id,
+        #     "fleet_source" => false | true,
         #   }
         # Returns:
         # - mob => The mob that was just integrated
@@ -201,6 +209,7 @@ module Paidgeeks
         #     "type" => "reduce_credits",
         #     "amount" => Amount of credits to subtract, (negative values will increase credits!)
         #     "fid" => fleet id losing the credits
+        #     "fleet_source" => false | true,
         #   }
         def self.reduce_credits_msg(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -218,6 +227,7 @@ module Paidgeeks
         #     "type" => "set_credits",
         #     "amount" => Amount of credits
         #     "fid" => fleet id losing the credits
+        #     "fleet_source" => false | true,
         #   }
         def self.set_credits_msg(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -231,6 +241,7 @@ module Paidgeeks
         #     "type" => "reduce_energy",
         #     "amount" => Amount of energy to subtract (negative values will increase energy!)
         #     "mid" => mob id
+        #     "fleet_source" => false | true,
         #   }
         def self.reduce_energy_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
@@ -249,6 +260,7 @@ module Paidgeeks
         #     "type" => "set_energy",
         #     "amount" => Amount of energy 
         #     "mid" => mob id
+        #     "fleet_source" => false | true,
         #   }
         def self.set_energy_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
@@ -276,6 +288,7 @@ module Paidgeeks
         #     "energy" => starting energy fot mob
         #     "hitpoints" => starting hit points for mob
         #     "last_scan_tick" => tick of the last scan this mom performed
+        #     "fleet_source" => false | true,
         #   }
         def self.create_mob_msg(gs, msg)
           mob = Paidgeeks::RubyFC::Mob.from_msg(msg)
@@ -288,9 +301,10 @@ module Paidgeeks
         # Delete a mob
         # Parameters:
         # - msg => A Hash: {
-        #   "type" => "delete_mob",
-        #   "mid" => Mob's mid,
-        #   "reason" => A string reason for deleting the mob
+        #     "type" => "delete_mob",
+        #     "mid" => Mob's mid,
+        #     "reason" => A string reason for deleting the mob
+        #     "fleet_source" => false | true,
         #   }
         def self.delete_mob_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
@@ -300,6 +314,37 @@ module Paidgeeks
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "delete_mob_notify"}))
         end
 
+        # Notify fleet one if its munitions intercepted something, this doesn't really change the gamestate,
+        # but it does follow the *_notify pattern for fleet notification for interesting events.
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "munition_intercept",
+        #     "munition_mid" => mid of the interceptor,
+        #     "target_mid" => mid of the target,
+        #     "remaining_target_hitpoints" => hitpoints remaining on target after intercept, will be <=0 if target destroyed
+        #     "fleet_source" => false | true,
+        #   }
+        def self.munition_intercept_msg(gs, msg)
+          mob = gs.mobs[msg["munition_mid"]]
+          fleet = gs.fleets[mob.fid]
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "munition_intercept_notify"}))
+        end
+
+        # Reduce mobs hitpoints
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "reduce_hitpoints",
+        #     "mid" => mid of the mob to modify
+        #     "amount" => number of hitpoints to subtract, set to negative to increase hitpoints  
+        #     "fleet_source" => false | true,
+        #   }
+        def self.reduce_hitpoints_msg(gs, msg)
+          mob = gs.mobs[msg["mid"]]
+          mob.hitpoints -= msg["amount"]
+          fleet = gs.fleets[mob.fid]
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "reduce_hitpoints_notify"}))
+        end
+
         # Scan
         # Parameters:
         # - msg => A Hash: {
@@ -307,6 +352,7 @@ module Paidgeeks
         #     "source_ship" => mid of the scanning ship,
         #     "azimuth" => absolute azimuth, in degrees, with 0 => North and 90 => East, must be a Float (0.0, not 0)
         #     "range" => The max range of the scan (see config field_width and field_height) for default playing field dimensions, must be a Float (0.0 not 0)
+        #     "fleet_source" => false | true,
         # }
         def self.scan_msg(gs, msg)
           source_ship = gs.mobs[msg["source_ship"]]
@@ -341,6 +387,7 @@ module Paidgeeks
                     "heading" => mob.heading,
                     "velocity" => mob.velocity,
                     "valid_time" => mob.valid_time,
+                    "ship_class" => mob.template.class.name,
                   }
                 end # inside slice pair
               end # slice pairs
@@ -379,6 +426,7 @@ module Paidgeeks
         #     "missile_max_scan_range => Max range of missile scanner
         #     "max_scan_range" => Max range of every other scanner
         #     "fid" => fleet id
+        #     "fleet_source" => false | true,
         #   }
         def self.game_config_msg(gs, msg)
         end
@@ -390,6 +438,7 @@ module Paidgeeks
         #     "mid" => Mob id
         #     "speed" => The new speed
         #     "fid" => fleet id
+        #     "fleet_source" => false | true,
         #   }
         def self.set_speed_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
@@ -406,6 +455,7 @@ module Paidgeeks
         #     "heading" => final heading, in degrees, must be a Float (0.0, not 0) and [0.0, 360.0)
         #     "direction" => "clockwise" or "counterclockwise"
         #     "fid" => fleet id
+        #     "fleet_source" => false | true,
         # }
         def self.turn_to_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
@@ -423,6 +473,7 @@ module Paidgeeks
         #     "rate" => Turn rate, in degrees/second, must be a Float (0.0, not 0)
         #     "direction" => "clockwise" or "counterclockwise"
         #     "fid" => fleet id
+        #     "fleet_source" => false | true,
         # }
         def self.turn_forever_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]

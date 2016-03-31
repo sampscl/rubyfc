@@ -82,7 +82,8 @@ module Paidgeeks
 
   # Calculate time to go until one
   # kinematic entity will be at its point of
-  # closest approach to another
+  # closest approach to another. This assumes that
+  # the each mob data was updated at the same time.
   # Parameters:
   # - m1 => mob1
   # - m2 => mob2

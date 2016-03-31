@@ -5,7 +5,7 @@ ticks_per_second: 10.0
 seconds_per_tick: 0.100
 log_level: :error # :debug, :info, or :error
 initial_fleet_credits: 1000
-kinematic_threads: 4
+kinematic_threads_limit: 4 # set to 0 for unlimited
 field_width: 3600
 field_height: 2400
 missile_max_scan_range: 300.0 # intentionally here instead of template so missions can override

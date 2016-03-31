@@ -69,16 +69,15 @@ module Paidgeeks
         # Parameters:
         # - msg => The message, in the form:
         #   {
-        #     "type" => "launch",
+        #     "type" => "fire",
         #     "munition_type" => "ship type to launch" (Missile, Rocket),
         #     "munition_heading" => The heading, in degrees, to give the new munition
         #     "source_ship" => mid of the ship that will launch ship_type
         #   }
         def fire(msg, smp, fm, gs)
           check_field_count(msg, 4)
-          check_field_of_type
-          check_field_of_type(msg, "ship_type", String)
-          check_field_of_type(msg, "munition_type", Fixnum)
+          check_field_of_type(msg, "source_ship", Fixnum)
+          check_field_of_type(msg, "munition_type", String)
           check_field_of_type(msg, "munition_heading", Float)
           msg["fid"] = fm.fleet_id
           smp.fire_msg(msg, fm, gs)

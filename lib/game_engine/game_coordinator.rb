@@ -105,6 +105,7 @@ module Paidgeeks
             begin
               while !stop.call() and gs.tick < gs.config[:max_game_ticks]
                 # update tick, time,
+                last_time = gs.time
                 gsc::tick_msg(gs, {"type" => "tick", "fleet_source" => false})
 
                 # update mission
@@ -129,7 +130,7 @@ module Paidgeeks
                 end
 
                 # update mobs
-                ke.update(gs)
+                ke.update(last_time, gs)
 
                 # end tick
                 # send fleet outputs
