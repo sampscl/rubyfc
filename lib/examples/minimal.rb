@@ -4,9 +4,6 @@
 # messages with RubyFC. We'll just use those here.
 require_relative '../utilities/stream_comms'
 
-# use a global flag to store if we are alive or not
-$alive = true
-
 # Convenience function to send a message Hash to RubyFC, the
 # flush is important to make sure that the game receives messages
 # in a timely manner.
@@ -53,9 +50,8 @@ def main
       "fleet_name" => "Minimal Example 1.0",
     })
 
-  # Keep going until we're not alive anymore
-  $alive = true
-  begin
+  # Keep going forever, RubyFC will clean up the fleets automagically
+  loop do
     # Read a message. Use a timeout of 1 second to 
     # be a good player and not try to eat all the
     # available CPU time by spinning in a loop.
@@ -66,7 +62,7 @@ def main
 
     # process the message
     process(msg)
-  end until !$alive
+  end
 end
 
 # Useful ruby trick: if the name of this file (__FILE__) is also

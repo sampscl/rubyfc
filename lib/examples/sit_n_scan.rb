@@ -8,9 +8,6 @@ require_relative '../utilities/stream_comms'
 # just use those here
 require_relative '../utilities/math_utils'
 
-# use a global flag to store if we are alive or not
-$alive = true
-
 # save some global state (this is horrible programming practice, sorry.)
 $last_scan_angle = 0.0
 $scan_range = 1000.0
@@ -82,9 +79,8 @@ def main
       "fleet_name" => "Sit-N-Scan Example 1.0",
     })
 
-  # Keep going until we're not alive anymore
-  $alive = true
-  begin
+  # Keep going forever, RubyFC will clean up the fleets automagically
+  loop do
     # Read a message. Use a timeout of 1 second to 
     # be a good player and not try to eat all the
     # available CPU time by spinning in a loop.
@@ -95,7 +91,7 @@ def main
 
     # process the message
     process(msg)
-  end until !$alive
+  end
 end
 
 # Useful ruby trick: if the name of this file (__FILE__) is also
