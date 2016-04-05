@@ -1,0 +1,14 @@
+---
+max_messages_per_tick: 1000
+max_game_ticks: 1000
+ticks_per_second: 10.0
+seconds_per_tick: 0.100
+log_level: :error # :debug, :info, or :error
+initial_fleet_credits: 1000
+kinematic_threads_limit: 4 # set to 0 for unlimited
+field_width: 3600
+field_height: 2400
+missile_max_scan_range: 300.0 # intentionally here instead of template so missions can override
+max_scan_range: 1500.0  # intentionally here instead of template so missions can override
+missile_life_time: 30.0 # seconds
+rocket_life_time: 30.0 # seconds

@@ -6,73 +6,96 @@ require_relative '../utilities/stream_comms'
 module Paidgeeks
   module RubyFC
     module Managers
+      # The fleet manager has an instance assiged to every fleet. It
+      # is the communication conduit between the game and the ships
+      # of each fleet. It reads and unpacks messages, validates them, and 
+      # calls out for processing. It also provides fleet-level logging. and
+      # the current state of the fleet
       class FleetManager
 
-        attr_reader :fleet_file
+        attr_accessor :fleet_id
+        attr_reader :fleet_msg_handler
         attr_accessor :fleet_metadata
-        attr_accessor :fleet_state
-        attr_accessor :tick
+        attr_accessor :fleet_state # :initializing, :alive, :dead, :error
 
-        def initialize(ff)
-          @fleet_file = ff
+        def initialize(ff, fid, ls)
+          @fleet_id = fid
+          @fleet_msg_handler = FleetMessageHandler.new
           @fleet_metadata = {}
-          @fleet_state = :initializing # or: :alive, :dead, :error
-          self.tick=0
+          @fleet_state = :initializing
           @output_queue = [] # encoded and JSON'ed
           @input_queue = [] # encoded and JSON'ed
 
+          @log_stream = ls
+
           begin
-            @stdin, @stdout, @stderr, @wait_thr = Open3.popen3("ruby #{fleet_file}")
-          rescue
+            @stdin, @stdout, @stderr, @wait_thr = Open3.popen3(ff)
+          rescue => e
             @stdin = @stdout = @stderr = @wait_thr = nil
-            @fleet_state = :error            
+            @fleet_state = :error
+            self.fleet_metadata[:error] = "Exception creating fleet: #{e}"
+            self.fleet_metadata[:backtrace] = e.backtrace.join("\n\tfrom: ")
+            self.fleet_metadata[:inspected_args] = []
           end
         end
 
+        # Cleanup the fleet. It is given a SIGTERM and up to 1 second to exit
+        # before SIGKILL.
         def cleanup
+          status = :already_dead
           if !@wait_thr.nil?
             p = @wait_thr[:pid]
             [@stdin, @stdout, @stderr].each { |s| s.close }
-            Process.kill("KILL", p) if Paidgeeks::PidState.pid_state(p) == :alive
+            if Paidgeeks::PidState.pid_state(p) == :alive
+              Process.kill("TERM", p) 
+              status = :sigterm
+              count=0
+              while :alive == Paidgeeks::PidState.pid_state(p) && count < 10
+                sleep(0.100)
+                count += 1
+              end
+            end
+            if Paidgeeks::PidState.pid_state(p) == :alive
+              Process.kill("KILL", p) 
+              status = :sigkill
+            end
             @stdin = @stdout = @stderr = @wait_thr = nil
           end
+          status
         end
 
-        def start
-          @fleet_state = :alive
-        end
-
-        def cache_inputs
+        def cache_inputs(gs)
           msg_count = 0
-          while(!(encoded_msg = Paidgeks.read_line(@stdout, 0)).nil? && msg_count < MAX_MESSAGES_PER_TICK)
-            msg_count = msg_count + 1
-            @input_queue << msg
+          max = gs.config[:max_messages_per_tick]
+          while(!(encoded_msg = Paidgeeks.read_line(@stdout, 0)).nil? && msg_count < max)
+            msg_count += 1
+            @input_queue << encoded_msg
           end
         end
 
-        def process_logging
+        def process_logging(gs)
+          return if @stderr.nil?
           msg_count = 0
+          max = gs.config[:max_messages_per_tick]
           begin
-            msg = Paidgeeks.read_object(@stderr)
+            msg = Paidgeeks.read_line(@stderr, 0)
             if !msg.nil?
-              msg_count = msg_count + 1
-              log(msg, msg_count)
+              msg_count += 1
+              log(msg)
             end
-          end until msg.nil? || msg_count >= MAX_MESSAGES_PER_TICK
+          end until msg.nil? || msg_count >= max
+          @log_stream.flush
         end
 
-        def queue_output(msg, encoded=false)
-          msg = Paidgeeks.encode(msg) if false == encoded
-          @output_queue << msg
-        end
-
-        def begin_tick(new_time)
-          self.tick = new_time
-          queue_output({msg: :begin_tick, tick: new_time})
-        end
-
-        def end_tick(new_time)
-          queue_output({msg: :end_tick, tick: new_time})
+        # Process the cached inputs from fleet. Will sanitize messages and  
+        # pass them to smp for processing. Will raise ArgumentError if a message 
+        # fails validation.
+        # Parameters:
+        # - smp => SanitizedMessageProcessor
+        # - gs => GameState
+        def process_inputs(smp, gs)
+          @input_queue.each { |msg| process(Paidgeeks.decode(msg), smp, gs) }
+          @input_queue.clear
         end
 
         def flush_output
@@ -83,25 +106,22 @@ module Paidgeeks
           @stdin.flush
         end
 
-        def process_inputs
-          @input_queue.each_with_index { |msg, ndx| process(Paidgeeks.decode(msg), ndx+1) }
-          @input_queue.clear
+        # Queue a message for output. The message must already be encoded.
+        def queue_output(msg)
+          @output_queue << msg
         end
 
         # private stuff
-
         private
-        # The log method is just here to provide an entry point for aspecting. All
-        # the real work is done in the aspect.
-        def log(msg, count)
+        def log(msg)
+          @log_stream.puts msg
         end
 
-        def process(msg, count)
+        def process(msg, smp, gs)
+          fleet_msg_handler.send(msg["type"].to_sym, msg, smp, self, gs)
         end
-
       end
     end
   end
 end
-
 require_relative '../logging/managers/fleet_manager_logging.rb'
