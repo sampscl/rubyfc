@@ -199,3 +199,4 @@ module Paidgeeks
     end
   end
 end
+require_relative '../logging/game_engine/game_coordinator_logging.rb'
