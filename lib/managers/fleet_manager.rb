@@ -42,20 +42,26 @@ module Paidgeeks
         # Cleanup the fleet. It is given a SIGTERM and up to 1 second to exit
         # before SIGKILL.
         def cleanup
+          status = :already_dead
           if !@wait_thr.nil?
             p = @wait_thr[:pid]
             [@stdin, @stdout, @stderr].each { |s| s.close }
             if Paidgeeks::PidState.pid_state(p) == :alive
               Process.kill("TERM", p) 
+              status = :sigterm
               count=0
               while :alive == Paidgeeks::PidState.pid_state(p) && count < 10
                 sleep(0.100)
                 count += 1
               end
             end
-            Process.kill("KILL", p) if Paidgeeks::PidState.pid_state(p) == :alive
+            if Paidgeeks::PidState.pid_state(p) == :alive
+              Process.kill("KILL", p) 
+              status = :sigkill
+            end
             @stdin = @stdout = @stderr = @wait_thr = nil
           end
+          status
         end
 
         def cache_inputs(gs)

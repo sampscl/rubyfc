@@ -19,7 +19,6 @@ def parse_command_line
   result = {
     fleets: [],
     game_log_file_name: "game.log",
-    game_playback_file_name: nil,
     just_show_transcript: false,
     game_id: 1,
     mission: "Paidgeeks::RubyFC::Missions::Deathmatch",
@@ -32,11 +31,7 @@ def parse_command_line
       result[:game_log_file_name] = opt
     end
 
-    opts.on("--playback=", "Specify game playback file") do |opt|
-      result[:game_playback_file_name] = opt
-    end
-
-    opts.on("--just-show-transcript", "Just show the transcript of the playback, do not actually play it back") do
+    opts.on("--just-show-transcript", "Just show the transcript from the game log, do not actually play it back") do
       result[:just_show_transcript]=true
     end
 
@@ -51,8 +46,20 @@ end
 def main
   opts = parse_command_line
   if not opts[:just_show_transcript]
-    report = Paidgeeks::RubyFC::Engine::GameCoordinator::run_until(opts) { SIGNAL_QUEUE.any? }
+    gc = Paidgeeks::RubyFC::Engine::GameCoordinator.new
+
+    gc.game_setup(opts)
+
+    last_time = gc.gs.time
+    while !SIGNAL_QUEUE.any? and :in_progress == gc.game_tick(last_time)
+      last_time = gc.gs.time
+      Thread.pass
+    end
+    report = gc.gs.mission.mission_report(gc.gs)
+
     puts("Mission report: #{report.inspect}")
+
+    gc.cleanup
   else
     Paidgeeks::RubyFC::Engine::Transcript::playback_until(opts) { SIGNAL_QUEUE.any? }
   end

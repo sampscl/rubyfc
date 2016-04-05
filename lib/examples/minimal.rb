@@ -29,7 +29,7 @@ def process(msg)
   case msg["type"] # all messages have a "type" field
   when "begin_tick" # beginning of a game tick
     log(msg)
-  when "end_tick" # end of a game tick
+  when "end_tick" # end of a game tick, ALWAYS ACKNOWLEDGE THIS
     send({"type" => "tick_acknowledged", "tick" => msg["tick"]})
     log(msg)
   else # this is a message that we don't handle yet, just log it
