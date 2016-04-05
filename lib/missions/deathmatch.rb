@@ -58,6 +58,11 @@ module Paidgeeks
               "fleet_source" => false,
               })
 
+            # in order to allow fighting with no credits, the cost of 
+            # munitions must be zero. Monkeypatch that in to the game.
+            Paidgeeks::RubyFC::Templates::Rocket.define_singleton_method(:credit_cost) { 0 }
+            Paidgeeks::RubyFC::Templates::Missile.define_singleton_method(:credit_cost) { 0 }
+
             # each fleet gets 1 gunship starting in a random location
             gsc::create_mob_msg(gs, {
               "type" => "create_mob",
