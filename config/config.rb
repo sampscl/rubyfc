@@ -1,5 +1,6 @@
 require 'yaml'
 require_relative 'constants'
+$log_level = :debug # default so startup logging works
 module Paidgeeks
   module RubyFC
     class Config
