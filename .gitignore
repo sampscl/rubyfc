@@ -3,3 +3,4 @@ log/*
 garbage.rb
 vendor/bundle
 .bundle/*
+db/*.sqlite3
