@@ -23,7 +23,6 @@ module Paidgeeks
           ke.cleanup
           gs.cleanup
           log_files.each { |lf| lf.close }
-          @journal.close
         end
 
         # Do all game setup based on opts. 
@@ -42,7 +41,7 @@ module Paidgeeks
           @log_files = []
 
           # game journal
-          @journal = File.open(File.join(Paidgeeks::RubyFC::LOG_DIR, opts[:game_log_file_name]),"w+t")
+          @journal = opts[:journal]
 
           # initialize game state
           @gs = Paidgeeks::RubyFC::Engine::GameState.new(@journal)
@@ -129,7 +128,7 @@ module Paidgeeks
         # game. Call it repeatedly until the game is over, then get
         # the final mission report.
         # Parameters:
-        # - last_time => the last time this method was called
+        # - last_time => the last gs.time this method was called
         # Returns:
         # - :in_progress => Game is still in progress
         # - :finished => Game is finished, get final status with report method and call cleanup
@@ -160,7 +159,7 @@ module Paidgeeks
             fm.process_inputs(smp, gs)
           end
 
-          # update mobs' kinematics
+          # update mobs' kinematics, energy, and do collosion detection
           ke.update(last_time, gs)
 
           # end tick

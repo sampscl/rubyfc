@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'active_record'
 require 'optparse'
 require 'yaml'
 require_relative '../lib/game_engine/game_coordinator'
@@ -14,6 +15,10 @@ end
 Signal.trap "INT" do
   SIGNAL_QUEUE << :INT
 end
+
+db = YAML::load_file(Paidgeeks::RubyFC::DB_YML_PATH)
+env = ENV.has_key?("RAILS_ENV") ? ENV["RAILS_ENV"] : "production"
+ActiveRecord::Base.establish_connection(db[env])
 
 def parse_command_line
   result = {
@@ -48,18 +53,22 @@ def main
   if not opts[:just_show_transcript]
     gc = Paidgeeks::RubyFC::Engine::GameCoordinator.new
 
-    gc.game_setup(opts)
+    File.open(File.join(Paidgeeks::RubyFC::LOG_DIR, opts[:game_log_file_name]),"w+t") do |journal|
+      opts[:journal] = journal
 
-    last_time = gc.gs.time
-    while !SIGNAL_QUEUE.any? and :in_progress == gc.game_tick(last_time)
+      gc.game_setup(opts)
+
       last_time = gc.gs.time
-      Thread.pass
-    end
-    report = gc.gs.mission.mission_report(gc.gs)
+      while !SIGNAL_QUEUE.any? and :in_progress == gc.game_tick(last_time)
+        last_time = gc.gs.time
+        Thread.pass
+      end
+      report = gc.gs.mission.mission_report(gc.gs)
 
-    puts("Mission report: #{report.inspect}")
+      puts("Mission report: #{report.inspect}")
 
-    gc.cleanup
+      gc.cleanup
+    end # File.open journal
   else
     Paidgeeks::RubyFC::Engine::Transcript::playback_until(opts) { SIGNAL_QUEUE.any? }
   end

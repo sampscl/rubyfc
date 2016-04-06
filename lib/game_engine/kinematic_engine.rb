@@ -30,7 +30,7 @@ module Paidgeeks
           @threads.each { |t| t.join }
         end
 
-        # Perform once-a-tick updates on mobs: kinematic integration and
+        # Perform once-a-tick updates on mobs: kinematic integration, energy update, and
         # collision detection with munitions
         # Parameters:
         # - last_time => the last time (same units as gs.time) that this method was called, used for interval calculations
