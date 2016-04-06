@@ -38,7 +38,8 @@ module Paidgeeks
         def update(last_time, gs)
           munitions = []
           to_time = gs.time
-          gs.mobs.each do |mid,mob|  
+          gs.mobs.each do |mid,mob| 
+            update_energy(last_time, gs, mob) 
             @in_queues.sample.enq([to_time, mob]) 
             if Paidgeeks::RubyFC::Templates::Rocket == mob.template or Paidgeeks::RubyFC::Templates::Missile == mob.template
               munitions << mob
@@ -225,6 +226,28 @@ module Paidgeeks
               "fleet_source" => false,
             })
           end
+        end
+
+        # Update a mobs energy
+        # Parameters:
+        # - last_time => the last time (same units as gs.time) that this method was called, used for interval calculations
+        # - gs => The gamestate
+        # - mob => The mob to update
+        def update_energy(last_time, gs, mob)
+          return if mob.energy >= mob.template.max_energy
+
+          delta_time = gs.time - last_time
+          return if delta_time <= 0.0
+
+          delta_energy = delta_time * mob.template.energy_recovery_rate
+          new_energy = [mob.energy + delta_energy, mob.template.max_energy].min
+
+          Paidgeeks::RubyFC::Engine::GameStateChanger::set_energy_msg(gs, {
+            "type" => "set_energy",
+            "amount" => new_energy,
+            "mid" => mob.mid,
+            "fleet_source" => false,
+            })
         end
       end
     end

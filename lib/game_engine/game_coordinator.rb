@@ -136,6 +136,7 @@ module Paidgeeks
         def game_tick(last_time)
           return :finished if gs.tick >= gs.config[:max_game_ticks]
 
+          # tick
           gsc::tick_msg(gs, {"type" => "tick", "fleet_source" => false})
 
           # update mission
@@ -159,7 +160,7 @@ module Paidgeeks
             fm.process_inputs(smp, gs)
           end
 
-          # update mobs
+          # update mobs' kinematics
           ke.update(last_time, gs)
 
           # end tick
