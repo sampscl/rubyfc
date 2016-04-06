@@ -92,34 +92,34 @@ class ScanTest < MiniTest::Test
   def test_scan
     gsc = Paidgeeks::RubyFC::Engine::GameStateChanger
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 45.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan", "fleet_source" => false, "source_ship" => 1, "azimuth" => 45.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(1 == sr["reports"].size, "There should be 1 scan report at 45")
     assert(2 == sr["reports"].first["mid"], "Mob 2 should be reported at 45")
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 135.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan",  "fleet_source" => false, "source_ship" => 1, "azimuth" => 135.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(1 == sr["reports"].size, "There should be 1 scan report at 135")
     assert(3 == sr["reports"].first["mid"], "Mob 3 should be reported at 135")
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 225.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan",  "fleet_source" => false, "source_ship" => 1, "azimuth" => 225.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(1 == sr["reports"].size, "There should be 1 scan report at 225")
     assert(4 == sr["reports"].first["mid"], "Mob 4 should be reported at 225")
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 315.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan",  "fleet_source" => false, "source_ship" => 1, "azimuth" => 315.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(1 == sr["reports"].size, "There should be 1 scan report at 315")
     assert(5 == sr["reports"].first["mid"], "Mob 5 should be reported at 315")
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 0.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan",  "fleet_source" => false, "source_ship" => 1, "azimuth" => 0.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(3 == sr["reports"].size, "There should be 3 scan reports at 0")
     sr["reports"].each do |report|
       assert([6,7,8].include?(report["mid"]), "Mobs 6-8 should be reported at 0")
     end
 
-    gsc::scan_msg(@gs, {"source_ship" => 1, "azimuth" => 180.0, "range" => 1000.0})
+    gsc::scan_msg(@gs, {"type" => "scan",  "fleet_source" => false, "source_ship" => 1, "azimuth" => 180.0, "range" => 1000.0})
     sr = @gs.fleets[1][:manager].queued_output.pop
     assert(3 == sr["reports"].size, "There should be 3 scan reports at 180")
     sr["reports"].each do |report|
