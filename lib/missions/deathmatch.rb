@@ -19,6 +19,7 @@ module Paidgeeks
   
 * Every fleet for itself until only one fleet remains
 * No credits
+* Munitions only cost energy
 * Each fleet gets 1 Gunship
 }
         end
