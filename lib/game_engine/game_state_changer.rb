@@ -9,8 +9,7 @@ module Paidgeeks
       # is what implements the memoization that allows game playback. As such, the 
       # methods in this class form the official internal game API and the game-to-fleet
       # API. Note that messages that are sent to fleets after being processed are 
-      # renamed to end with "_notify". This is to avoid ambiguity when looking at 
-      # message traces.
+      # renamed to end with "_notify", and this is what forms the game-to-fleet API. 
       #
       # Please note that the GameStateChanger class is, itself STATELESS. Keep it 
       # that way. Also, note that GameStateChanger trusts its input. Callers are
