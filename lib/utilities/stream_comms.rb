@@ -3,7 +3,7 @@ require 'base64'
 module Paidgeeks
 
   # Get next object from stream. Stream must consist of Paidgeeks.encode()ed
-  # objects that are separated by newlines. This function will not block.
+  # objects that are separated by newlines.
   # Parameters:
   # - stream => The IO object that the object will be read from
   # - timeout => The amount of time (in seconds) to wait for a message, defaults to 0
@@ -14,7 +14,7 @@ module Paidgeeks
     decode(line) if line
   end
 
-  # Write an objec to a stream using Paidgeeks.encode()
+  # Write an object to a stream using Paidgeeks.encode()
   # Parameters:
   # - stream => The IO object that will be written to, objects will be 
   #   separated with newline characters. The stream will not be flushed
@@ -27,9 +27,9 @@ module Paidgeeks
     stream.write("#{encoded}\n")
     encoded
   end
-  # Encode an object.
+  # Encode an object. The object is JSON'ed then Base64 strict encoded.
   # This will encode an object as a string so that 
-  # there will be no CR or LFs in the string.
+  # there will be no CR or LFs in the string. 
   # Parameters:
   # - object => The object to encode, will only have its data fields encoded
   # Returns:
