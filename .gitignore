@@ -4,3 +4,4 @@ garbage.rb
 vendor/bundle
 .bundle/*
 db/*.sqlite3
+doc/*

@@ -50,11 +50,13 @@ module Paidgeeks
         #     "type" => "launch",
         #     "ship_type" => "ship type to launch" (Cruiser, Fighter, Gunship, or scenario-defined),
         #     "source_ship" => mid of the ship that will launch ship_type
+        #     "launch_param" => launch parameter from the fleet, useful to assign fleet-specific missions to ships. Can be anything.
         #   }
         def launch(msg, smp, fm, gs)
-          check_field_count(msg, 3)
+          check_field_count(msg, 4)
           check_field_of_type(msg, "ship_type", String)
           check_field_of_type(msg, "source_ship", Fixnum)
+          check_field_exists(msg, "launch_param")
           msg["fid"] = fm.fleet_id
           smp.launch_msg(msg, fm, gs)
         end
@@ -74,13 +76,15 @@ module Paidgeeks
         #     "munition_heading" => The heading, in degrees, to give the new munition
         #     "source_ship" => mid of the ship that will launch ship_type
         #     "target" => mid of the target, can be 0 if there is no specific target. Has no effect for rockets.
+        #     "launch_param" => launch parameter from the fleet, useful to assign fleet-specific missions to ships. Can be anything.
         #   }
         def fire(msg, smp, fm, gs)
-          check_field_count(msg, 5)
+          check_field_count(msg, 6)
           check_field_of_type(msg, "source_ship", Fixnum)
           check_field_of_type(msg, "munition_type", String)
           check_field_of_type(msg, "munition_heading", Float)
           check_field_of_type(msg, "target", Fixnum)
+          check_field_exists(msg, "launch_param")
           msg["fid"] = fm.fleet_id
           smp.fire_msg(msg, fm, gs)
         end

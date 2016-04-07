@@ -117,6 +117,7 @@ module Paidgeeks
             "hitpoints" => new_ship_klass.hit_points,
             "last_scan_tick" => 0,
             "target_mid" => nil,
+            "launch_param" => msg["launch_param"],
             "fleet_source" => false,
           })
         end
@@ -223,6 +224,7 @@ module Paidgeeks
             "hitpoints" => new_ship_klass.hit_points,
             "last_scan_tick" => 0,
             "target_mid" => msg["target"],
+            "launch_param" => msg["launch_param"],
             "fleet_source" => false,
           })
         end

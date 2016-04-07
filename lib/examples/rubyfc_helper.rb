@@ -1,8 +1,17 @@
 #!/usr/bin/env ruby
 
-# useful: Paidgeeks module has handy methods for encoding and decoding
-# messages with RubyFC. We'll just use those here.
+#
+# This file contains helper code for novice programmers. 
+#
 require_relative '../utilities/stream_comms'
+require_relative '../utilities/mob'
+
+$fleet = {
+  "author"     => "NOBODY",
+  "fleet_name" => "You forgot to set the $fleet!"
+}
+
+$mobs = {}
 
 # Convenience function to send a message Hash to RubyFC, the
 # flush is important to make sure that the game receives messages
@@ -21,6 +30,22 @@ def log(msg)
   $stderr.puts(msg)
 end
 
+# placeholders
+def on_idle
+end
+def integrate_mob_notify(msg)
+  mob = $mobs[msg["mid"]]
+  msg.each { |k,v| mob.send("#{k}=", v) if mob.respond_to?("#{k}=") }
+end
+def create_mob_notify(msg)
+  mob = Paidgeeks::Mob.from_msg(msg)
+  $mobs[mob.mid] = mob
+end
+def delete_mob_notify(msg)
+  mid = msg["mid"]
+  $mobs.delete(mid)
+end
+
 # Process messages received from the game
 # Parameters:
 # - msg => The message; this will be a Hash object with
@@ -28,12 +53,19 @@ end
 def process(msg)
   case msg["type"] # all messages have a "type" field
   when "begin_tick" # beginning of a game tick
+    on_idle
+  when "warn_fleet", "disqualify_fleet_notify", "fleet_state_notify"
     log(msg)
+  when "integrate_mob_notify"
+    integrate_mob_notify(msg)
+  when "create_mob_notify"
+    create_mob_notify(msg)
+  when "delete_mob_notify"
+    delete_mob_notify(msg)
   when "end_tick" # end of a game tick, ALWAYS ACKNOWLEDGE THIS
     send({"type" => "tick_acknowledged", "tick" => msg["tick"]})
     log(msg)
-  else # this is a message that we don't handle yet, just log it
-    log("Got message that I don't handle: #{msg.inspect}")
+  else # this is a message that we don't handle yet
   end
 end
 
@@ -41,14 +73,10 @@ end
 # this will only be executed if the script is run as as "program" from
 # the command line. Which happens to be *exactly* what RubyFC does
 # when you give it a fleet file name.
-def main
+def rubyfc_helper
 
   # always write your fleet metadata first
-  send({
-      "type"       => "set_fleet_metadata",
-      "author"     => "Clay Sampson",
-      "fleet_name" => "Advanced Minimal Example 1.0",
-    })
+  send({"type" => "set_fleet_metadata"}.merge($fleet))
 
   # Keep going forever, RubyFC will clean up the fleets automagically
   loop do
@@ -63,13 +91,4 @@ def main
     # process the message
     process(msg)
   end
-end
-
-# Useful ruby trick: if the name of this file (__FILE__) is also
-# the program name ($0), then this file was run like a program,
-# so we'll act like a program. Otherwise, this file was loaded
-# some other way (like 'require', or 'load') and there is nothing
-# to do.
-if __FILE__ == $0
-  main
 end

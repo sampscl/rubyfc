@@ -20,7 +20,8 @@ module Paidgeeks
       :energy,
       :hitpoints,
       :last_scan_tick,
-      :target_mid
+      :target_mid,
+      :launch_param
       
       KINEMATIC_ATTRS = ["x_pos", "y_pos", "heading", 
                          "velocity", "turn_rate", "valid_time", 
@@ -28,7 +29,7 @@ module Paidgeeks
       IDENTIFIER_ATTRS = ["mid", "fid"]
       METADATA_ATTRS = ["template", "create_time"]
       MUNITION_ATTRS = ["target_mid"]
-      OTHER_ATTRS = ["energy", "hitpoints", "last_scan_tick"]
+      OTHER_ATTRS = ["energy", "hitpoints", "last_scan_tick", "launch_param"]
 
       ALL_ATTRS = KINEMATIC_ATTRS + 
         IDENTIFIER_ATTRS + 

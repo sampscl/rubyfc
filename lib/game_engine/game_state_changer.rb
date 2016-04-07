@@ -97,6 +97,9 @@ module Paidgeeks
         end
 
         # Disqualify a fleet, also destroys all fleet's mobs
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "disqualify_fleet",
@@ -123,6 +126,9 @@ module Paidgeeks
         end
 
         # Update the fleet state
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "fleet_state",
@@ -140,6 +146,9 @@ module Paidgeeks
         # all mobs most remain on the playing field. To prevent mobs from "hiding" just on the other side
         # (and complicating scanning logic), motion is not wrapped around a-la pacman. Instead, mobs will
         # just stop at the barrier created by the boundary.
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "integrate_mob",
@@ -205,6 +214,9 @@ module Paidgeeks
         end
 
         # Reduce fleet credits
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "reduce_credits",
@@ -223,6 +235,9 @@ module Paidgeeks
         end
 
         # Set fleet credits
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "set_credits",
@@ -237,6 +252,9 @@ module Paidgeeks
         end
 
         # Reduce a mobs energy
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "reduce_energy",
@@ -256,6 +274,9 @@ module Paidgeeks
         end
 
         # Set a mobs energy
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "set_energy",
@@ -271,6 +292,9 @@ module Paidgeeks
         end
 
         # Create a new mob
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash {
         #     "type" => "create_mob",
@@ -289,7 +313,8 @@ module Paidgeeks
         #     "energy" => starting energy fot mob
         #     "hitpoints" => starting hit points for mob
         #     "last_scan_tick" => tick of the last scan this mom performed,
-        #     "target_mid" => mid of target, NOT REQUIRED.
+        #     "target_mid" => mid of target. This is not required to be a valid mid,
+        #     "launch_param" => launch parameter for the mob, can be anything.
         #     "fleet_source" => false | true,
         #   }
         def self.create_mob_msg(gs, msg)
@@ -301,6 +326,9 @@ module Paidgeeks
         end
 
         # Delete a mob
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "delete_mob",
@@ -318,6 +346,9 @@ module Paidgeeks
 
         # Notify fleet one if its munitions intercepted something, this doesn't really change the gamestate,
         # but it does follow the *_notify pattern for fleet notification for interesting events.
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "munition_intercept",
@@ -333,6 +364,9 @@ module Paidgeeks
         end
 
         # Reduce mobs hitpoints
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "reduce_hitpoints",
@@ -435,6 +469,9 @@ module Paidgeeks
         end
 
         # Set mob speed.
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "set_speed",
@@ -451,6 +488,9 @@ module Paidgeeks
         end
 
         # Turn mob to a new heading
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "turn_to",
@@ -469,6 +509,9 @@ module Paidgeeks
         end
 
         # Turn mob forever so it flies in a circle
+        #
+        # This will generate a _notify message to the fleet.
+        #
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "turn_to",
