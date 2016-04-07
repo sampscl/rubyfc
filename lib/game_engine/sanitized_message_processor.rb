@@ -43,8 +43,7 @@ module Paidgeeks
 
           new_ship_klass = Paidgeeks::RubyFC::Templates.const_get(msg["ship_type"])
 
-          case new_ship_klass.name
-          when Paidgeeks::RubyFC::Templates::Rocket.name, Paidgeeks::RubyFC::Templates::Missile.name
+          if new_ship_klass.munition?
             @@gsc::warn_fleet(gs, {
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
@@ -117,6 +116,7 @@ module Paidgeeks
             "energy" => new_ship_klass.max_energy,
             "hitpoints" => new_ship_klass.hit_points,
             "last_scan_tick" => 0,
+            "target_mid" => nil,
             "fleet_source" => false,
           })
         end
@@ -203,6 +203,7 @@ module Paidgeeks
             "amount" => new_ship_klass.energy_cost,
             "fleet_source" => false,
             })
+
           @@gsc::create_mob_msg(gs, {
             "type" => "create_mob",
             "template" => new_ship_klass,
@@ -221,6 +222,7 @@ module Paidgeeks
             "energy" => new_ship_klass.max_energy,
             "hitpoints" => new_ship_klass.hit_points,
             "last_scan_tick" => 0,
+            "target_mid" => msg["target"],
             "fleet_source" => false,
           })
         end

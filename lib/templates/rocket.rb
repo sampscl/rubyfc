@@ -31,6 +31,10 @@ module Paidgeeks
         def self.can_scan
           false
         end
+        
+        def self.munition?
+          true
+        end
       end
     end
   end

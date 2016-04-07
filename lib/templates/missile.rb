@@ -28,6 +28,10 @@ module Paidgeeks
         def self.damage_caused
           1
         end
+
+        def self.munition?
+          true
+        end
       end
     end
   end

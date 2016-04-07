@@ -73,12 +73,14 @@ module Paidgeeks
         #     "munition_type" => "ship type to launch" (Missile, Rocket),
         #     "munition_heading" => The heading, in degrees, to give the new munition
         #     "source_ship" => mid of the ship that will launch ship_type
+        #     "target" => mid of the target, can be 0 if there is no specific target. Has no effect for rockets.
         #   }
         def fire(msg, smp, fm, gs)
-          check_field_count(msg, 4)
+          check_field_count(msg, 5)
           check_field_of_type(msg, "source_ship", Fixnum)
           check_field_of_type(msg, "munition_type", String)
           check_field_of_type(msg, "munition_heading", Float)
+          check_field_of_type(msg, "target", Fixnum)
           msg["fid"] = fm.fleet_id
           smp.fire_msg(msg, fm, gs)
         end
@@ -168,8 +170,12 @@ module Paidgeeks
           raise ArgumentError, "#{count} fields are required in message #{msg}" unless count == msg.length
         end
 
-        def check_field_of_type(msg, field_name, type)
+        def check_field_exists(msg, field_name)
           raise ArgumentError, "field #{field_name} missing from message #{msg}" unless msg.has_key?(field_name)
+        end
+
+        def check_field_of_type(msg, field_name, type)
+          check_field_exists(msg, field_name)
           raise ArgumentError, "field #{field_name} is a #{msg[field_name].class.name} but should be a #{type.name} in message #{msg}" unless msg[field_name].kind_of?(type)
         end
       end

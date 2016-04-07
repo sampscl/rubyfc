@@ -41,9 +41,7 @@ module Paidgeeks
           gs.mobs.each do |mid,mob| 
             update_energy(last_time, gs, mob) 
             @in_queues.sample.enq([to_time, mob]) 
-            if Paidgeeks::RubyFC::Templates::Rocket == mob.template or Paidgeeks::RubyFC::Templates::Missile == mob.template
-              munitions << mob
-            end
+            munitions << mob if mob.template.munition?
           end
 
           # wait for threads to consume their input
@@ -94,14 +92,14 @@ module Paidgeeks
             end
           end # end all out_queues
 
-          # reprocess all mobs for collisions
+          # reprocess all mobs for collisions and missile target updates
           process_collisions(last_time, munitions, gs) if munitions.any?
         end
 
-        # Detect and process munition collisions for a game update interval. This is normally called
-        # from update, although it is possible (mostly for testing) to call independently. This function
-        # assumes that all mobs have been integrated to the same valid_time (which is true when called from
-        # update)
+        # Detect and process munition collisions and target updates for a game update interval. This is 
+        # normally called from update, although it is possible (mostly for testing) to call independently. 
+        # This functionassumes that all mobs have been integrated to the same valid_time (which is true 
+        # when called from update).
         # Parameters:
         # - last_time => the last time (same units as gs.time) that this method was called, used for interval calculations
         # - munitions => Array of munition mobs
@@ -170,6 +168,29 @@ module Paidgeeks
               "fleet_source" => false,
               }) if gs.mobs[collision[:mob2].mid].hitpoints <= 0
           end # end each collision sorted by ttg
+
+          # for remaining missile munitions, send target if munution has target
+          munitions.each do |mun_mob|
+            mun_mob = gs.mobs[mun_mob.mid] # will be nil if mun_mob hit target
+            next if mun_mob.nil? or mun_mob.target_mid.nil?
+
+            target_mob = gs.mobs[mun_mob.target_mid]
+            next if target_mob.nil? # target already destroyed
+
+            # send target_mob to mun_mob's fleet as a missile target update
+            Paidgeeks::RubyFC::Engine::GameStateChanger::munition_intercept_msg(gs, {
+              "type" => "missile_target_update",
+              "munition_mid" => mun_mob.mid,
+              "target_mid" => target_mob.mid,
+              "x_pos" => target_mob.x_pos,
+              "y_pos" => target_mob.y_pos,
+              "heading" => target_mob.heading,
+              "velocity" => target_mob.velocity,
+              "valid_time" => target_mob.valid_time,
+              "ship_class" => target_mob.template.class.name,
+              "fleet_source" => false,
+              })
+          end
         end
 
         # Check if mobs are within their mutual collision zone. 

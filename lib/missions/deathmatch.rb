@@ -83,6 +83,7 @@ module Paidgeeks
               "energy" => Paidgeeks::RubyFC::Templates::Gunship.max_energy,
               "hitpoints" => Paidgeeks::RubyFC::Templates::Gunship.hit_points,
               "last_scan_tick" => 0,
+              "target_mid" => nil,
               "fleet_source" => false,
             })
           end

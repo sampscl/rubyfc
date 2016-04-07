@@ -65,6 +65,7 @@ class CollisionTest < MiniTest::Test
     smp = Paidgeeks::RubyFC::Engine::SanitizedMessageProcessor.new
     gsc = Paidgeeks::RubyFC::Engine::GameStateChanger
     fm = @gs.fleets[1][:manager]
+    puts "firing rocket"
     smp.fire_msg({
       "type" => "fire",
       "munition_type" => "Rocket",
@@ -72,13 +73,17 @@ class CollisionTest < MiniTest::Test
       "source_ship" => 1,
       }, fm, @gs)
 
+    puts "tick 1"
     last_time = @gs.time
     gsc::tick_msg(@gs, {"type" => "tick", "fleet_source" => false})
+    puts "update 1"
     ke.update(last_time, @gs)
 
 
+    puts "tick 2"
     last_time = @gs.time
     gsc::tick_msg(@gs, {"type" => "tick", "fleet_source" => false})
+    puts "update 2"
     ke.update(last_time, @gs)
 
     assert(@gs.mobs.size() == 1, "Rocket intercept kills both rocket and target")

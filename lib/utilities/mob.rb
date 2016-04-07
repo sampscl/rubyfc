@@ -19,16 +19,22 @@ module Paidgeeks
       :fid,
       :energy,
       :hitpoints,
-      :last_scan_tick
+      :last_scan_tick,
+      :target_mid
       
       KINEMATIC_ATTRS = ["x_pos", "y_pos", "heading", 
                          "velocity", "turn_rate", "valid_time", 
                          "turn_start_time", "turn_stop_time", "turn_stop"]
       IDENTIFIER_ATTRS = ["mid", "fid"]
       METADATA_ATTRS = ["template", "create_time"]
+      MUNITION_ATTRS = ["target_mid"]
       OTHER_ATTRS = ["energy", "hitpoints", "last_scan_tick"]
 
-      ALL_ATTRS = KINEMATIC_ATTRS + IDENTIFIER_ATTRS + METADATA_ATTRS + OTHER_ATTRS
+      ALL_ATTRS = KINEMATIC_ATTRS + 
+        IDENTIFIER_ATTRS + 
+        METADATA_ATTRS + 
+        MUNITION_ATTRS +
+        OTHER_ATTRS
 
       def self.from_msg(msg)
         mob = Mob.new
@@ -39,9 +45,7 @@ module Paidgeeks
       end
 
       def self.copy(other_mob)
-        mob = Mob.new
-        ALL_ATTRS.each { |attr| mob.send("#{attr}=", other_mob.send(attr)) }
-        mob
+        other_mob.clone
       end
 
       def is_turning?

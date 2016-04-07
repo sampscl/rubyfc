@@ -57,6 +57,10 @@ module Paidgeeks
         def self.collision_size
           0.0 # from original AI fleet commander: the collision size is a square around each mob
         end
+
+        def self.munition?
+          false
+        end
       end
     end
   end

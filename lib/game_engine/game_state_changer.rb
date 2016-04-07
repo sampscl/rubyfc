@@ -287,7 +287,8 @@ module Paidgeeks
         #     "mid" => mob id of new mob (must be unique for entire game!),
         #     "energy" => starting energy fot mob
         #     "hitpoints" => starting hit points for mob
-        #     "last_scan_tick" => tick of the last scan this mom performed
+        #     "last_scan_tick" => tick of the last scan this mom performed,
+        #     "target_mid" => mid of target, NOT REQUIRED.
         #     "fleet_source" => false | true,
         #   }
         def self.create_mob_msg(gs, msg)
