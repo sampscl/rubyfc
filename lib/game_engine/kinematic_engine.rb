@@ -137,13 +137,6 @@ module Paidgeeks
 
             # interceptor_mob and mob2 have collided
 
-            # subtract hit points from mob2
-            Paidgeeks::RubyFC::Engine::GameStateChanger::reduce_hitpoints_msg(gs, {
-              "type" => "reduce_hitpoints",
-              "mid" => collision[:mob2].mid,
-              "amount" => collision[:interceptor_mob].template.damage_caused,
-              "fleet_source" => false,
-              })
             # tell interceptor fleet that interceptor hit something
             Paidgeeks::RubyFC::Engine::GameStateChanger::munition_intercept_msg(gs, {
               "type" => "munition_intercept",
@@ -158,6 +151,13 @@ module Paidgeeks
               "type" => "delete_mob",
               "mid" => collision[:interceptor_mob].mid,
               "reason" => "munition intercepted target",
+              "fleet_source" => false,
+              })
+            # subtract hit points from mob2
+            Paidgeeks::RubyFC::Engine::GameStateChanger::reduce_hitpoints_msg(gs, {
+              "type" => "reduce_hitpoints",
+              "mid" => collision[:mob2].mid,
+              "amount" => collision[:interceptor_mob].template.damage_caused,
               "fleet_source" => false,
               })
             # destroy mob2 if hitpoints <= 0, retrieve by mid just to be sure (paranoia)

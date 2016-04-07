@@ -17,6 +17,7 @@ module Paidgeeks
         attr_accessor :mission # Mission
         attr_accessor :journal # IO
         attr_accessor :config # hash of config values
+        attr_accessor :tick_scan_reports # array of scan reports generated in the last tick
 
         def initialize(journal)
           @fleets = {}
@@ -26,6 +27,7 @@ module Paidgeeks
           @mission = nil
           @journal = journal
           @config = {}
+          @tick_scan_reports = []
           @next_mid = 0 # the next mid is really 1, reserve_mid takes care of that
         end
 

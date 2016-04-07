@@ -34,6 +34,7 @@ module Paidgeeks
         def self.tick_msg(gs, msg)
           gs.tick += 1
           gs.time = gs.tick * gs.config[:seconds_per_tick]
+          gs.tick_scan_reports = []
         end
 
         # Send a warning message to a fleet. This is not really a game state change, 
@@ -410,6 +411,7 @@ module Paidgeeks
           }
           fleet = gs.fleets[source_ship.fid]
           msg_to_fleet(gs, fleet[:manager], scan_report)
+          gs.tick_scan_reports << scan_report
         end
 
         # Send game config to a fleet. This doesn't really
