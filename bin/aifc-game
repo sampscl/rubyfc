@@ -2,11 +2,9 @@
 require 'active_record'
 require 'optparse'
 require 'yaml'
-require_relative '../lib/game_engine/game_coordinator'
-require_relative '../lib/game_engine/transcript'
+require_relative '../lib/game_engine/all'
 require_relative '../config/constants'
 require_relative '../config/config'
-require_relative '../lib/managers/all'
 
 SIGNAL_QUEUE = []
 Signal.trap "TERM" do

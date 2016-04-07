@@ -5,7 +5,7 @@ require_relative '../utilities/stream_comms'
 
 module Paidgeeks
   module RubyFC
-    module Managers
+    module Engine
       # The fleet manager has an instance assiged to every fleet. It
       # is the communication conduit between the game and the ships
       # of each fleet. It reads and unpacks messages, validates them, and 
@@ -124,4 +124,4 @@ module Paidgeeks
     end
   end
 end
-require_relative '../logging/managers/fleet_manager_logging.rb'
+require_relative '../logging/game_engine/fleet_manager_logging.rb'

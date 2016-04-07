@@ -1,11 +1,6 @@
 require 'pp'
 require_relative '../../config/constants'
-require_relative '../utilities/class_from_string'
-require_relative 'game_state'
-require_relative 'sanitized_message_processor'
-require_relative 'kinematic_engine'
-require_relative '../missions/all'
-require_relative '../managers/all'
+require_relative '../utilities/stream_comms'
 
 module Paidgeeks
   module RubyFC

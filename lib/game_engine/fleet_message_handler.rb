@@ -1,6 +1,6 @@
 module Paidgeeks
   module RubyFC
-    module Managers
+    module Engine
       # This class implements the rules for how messages from a fleet are handled. As such,
       # the methods of this class form the official fleet to game API.
       class FleetMessageHandler

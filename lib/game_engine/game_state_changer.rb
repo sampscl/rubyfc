@@ -1,6 +1,6 @@
 require_relative '../utilities/stream_comms'
-require_relative '../managers/all'
 require_relative '../utilities/mob'
+require_relative 'all'
 module Paidgeeks
   module RubyFC
     module Engine
@@ -91,7 +91,7 @@ module Paidgeeks
         #     "fleet_source" => false | true,
         #   }
         def self.add_fleet_msg(gs, msg)
-          mgr = Paidgeeks::RubyFC::Managers::FleetManager.new(msg["ff"], msg["fid"], msg["log_stream"])
+          mgr = Paidgeeks::RubyFC::Engine::FleetManager.new(msg["ff"], msg["fid"], msg["log_stream"])
           gs.add_fleet(msg["fid"], mgr, msg["last_ack_tick"], msg["log_stream"])
         end
 

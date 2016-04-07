@@ -2,7 +2,7 @@ require_relative '../base_logging'
 module Paidgeeks
   module RubyFC
     module Logging
-      module Managers
+      module Engine
         class FleetManagerLoggingAspect < BaseLogging
           around :log, method_arg: true do |method, proxy, *args, &block|
             result = nil
@@ -49,7 +49,7 @@ module Paidgeeks
             end
           end
         end
-        FleetManagerLoggingAspect.apply(Paidgeeks::RubyFC::Managers::FleetManager)
+        FleetManagerLoggingAspect.apply(Paidgeeks::RubyFC::Engine::FleetManager)
       end
     end
   end

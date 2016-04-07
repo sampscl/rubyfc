@@ -3,7 +3,6 @@ require_relative 'all'
 require_relative '../../config/constants'
 require_relative '../utilities/class_from_string'
 require_relative '../missions/all'
-require_relative '../managers/all'
 
 module Paidgeeks
   module RubyFC
