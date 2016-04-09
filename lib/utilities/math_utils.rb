@@ -37,6 +37,27 @@ module Paidgeeks
     radians
   end
 
+  # Get the direction for the shortest turn from hdg1 to hdg2
+  # Parameters:
+  # - hdg1 => start from this heading (radians) [0, 2PI)
+  # - hdg2 => turn to this heading (radians) [0, 2PI)
+  # Returns:
+  # - :clockwise => The shortest turn direction is clockwise
+  # - :counterclockwise
+  def shortest_turn(hdg1, hdg2)
+    cw = 0.0
+    ccw = 0.0
+    if hdg1 > hdg2
+      ccw = hdg1 - hdg2
+      cw = Paidgeeks::TWOPI - hdg1 + hdg2
+    else
+      ccw = hdg1 + Paidgeeks::TWOPI - hdg2
+      cw = hdg2 - hdg1
+    end
+
+    cw < ccw ? :clockwise : :counterclockwise
+  end
+
   # Get relative angle in radians
   # Parameters:
   # - x => measure from this x coordinate
