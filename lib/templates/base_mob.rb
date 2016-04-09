@@ -61,6 +61,10 @@ module Paidgeeks
         def self.munition?
           false
         end
+
+        def self.max_scan_range
+          1500.0
+        end
       end
     end
   end
