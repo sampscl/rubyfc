@@ -1,6 +1,7 @@
 require 'pp'
 require 'minitest/autorun'
 
+require_relative '../../config/config'
 require_relative '../../lib/game_engine/all'
 require_relative '../helpers/fleet_manager_test_helper'
 
@@ -8,6 +9,9 @@ class ScanTest < MiniTest::Test
   def setup
     # need 5 mobs: center, ne, se, sw, nw. All with different fids
     @gs = Paidgeeks::RubyFC::Engine::GameState.new($stdout)
+
+    Paidgeeks::RubyFC::Config.load(@gs)
+
     @gs.add_fleet(1, FleetManagerTestHelper.new(1), 0, $stdout)
     @gs.mobs[1] = Paidgeeks::RubyFC::Mob.from_msg({ # center
       "x_pos" => 1000,
