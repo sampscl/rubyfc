@@ -1,5 +1,4 @@
 require_relative 'math_utils'
-require_relative '../templates/all'
 
 module Paidgeeks
   module RubyFC
@@ -97,25 +96,21 @@ module Paidgeeks
         max_turn_rate = self.template.max_turn_rate
         if :clockwise == direction
           self.turn_rate = max_turn_rate
-          if new_heading_radians < self.heading
-            # this is the long way around
-            delta_radians = TWOPI - self.heading + new_heading_radians 
+          if self.heading > new_heading_radians
+            delta_radians = Paidgeeks::TWOPI - self.heading + new_heading_radians
           else
-            # this is the short way around
-            delta_radians = self.heading - new_heading_radians
+            delta_radians = new_heading_radians - self.heading
           end
         else
           self.turn_rate = -max_turn_rate
-          if new_heading_radians > self.heading
-            # this is the long way around
-            delta_radians = TWOPI - new_heading_radians + self.heading
+          if self.heading < new_heading_radians
+            delta_radians = self.heading + Paidgeeks::TWOPI - new_heading_radians
           else
-            # this is the short way around
             delta_radians = self.heading - new_heading_radians
           end
         end
 
-        delta_time = delta_radians.abs / max_turn_rate
+        delta_time = delta_radians / max_turn_rate
         self.turn_stop = new_heading_radians
         self.turn_stop_time = (self.valid_time + delta_time)
         self
