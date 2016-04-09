@@ -386,7 +386,7 @@ module Paidgeeks
         #     "type" => "scan",
         #     "source_ship" => mid of the scanning ship,
         #     "azimuth" => absolute azimuth, in degrees, with 0 => North and 90 => East, must be a Float (0.0, not 0)
-        #     "range" => The max range of the scan (see config field_width and field_height) for default playing field dimensions, must be a Float (0.0 not 0)
+        #     "range" => The max range of the scan, must be > 0 (see config field_width and field_height) for default playing field dimensions, must be a Float (0.0 not 0)
         #     "fleet_source" => false | true,
         # }
         def self.scan_msg(gs, msg)
@@ -396,7 +396,7 @@ module Paidgeeks
           y = source_ship.y_pos
           range = msg["range"]
           range_squared = range * range
-          half_theta = 0.5 * (37.5 / range) # scan twice this wide
+          half_theta = 0.5 * (gs.config[:scanned_area] / range) # scan twice this wide
           center = msg["azimuth"]
           if center > 180.0 # negative angles to left, makes math below work
             center -= 360.0
@@ -421,8 +421,12 @@ module Paidgeeks
                     "y_pos" => mob.y_pos,
                     "heading" => mob.heading,
                     "velocity" => mob.velocity,
+                    "turn_rate" => 0.0,
                     "valid_time" => mob.valid_time,
-                    "ship_class" => mob.template.class.name,
+                    "turn_start_time" => 0.0,
+                    "turn_stop_time" => 0.0,
+                    "turn_stop" => 0.0,
+                    "template" => mob.template.name,
                   }
                 end # inside slice pair
               end # slice pairs
@@ -459,8 +463,6 @@ module Paidgeeks
         #     "type" => "game_config",
         #     "field_width" => the field width, you can't go < 0 or greater than this
         #     "field_height" => the field height, you can't go < 0 or greater than this
-        #     "missile_max_scan_range => Max range of missile scanner
-        #     "max_scan_range" => Max range of every other scanner
         #     "fid" => fleet id
         #     "fleet_source" => false | true,
         #   }

@@ -187,7 +187,7 @@ module Paidgeeks
               "heading" => target_mob.heading,
               "velocity" => target_mob.velocity,
               "valid_time" => target_mob.valid_time,
-              "ship_class" => target_mob.template.class.name,
+              "template" => target_mob.template.class.name,
               "fleet_source" => false,
               })
           end
@@ -241,7 +241,7 @@ module Paidgeeks
               "velocity" => updated_mob.velocity,
               "turn_rate" => updated_mob.turn_rate,
               "valid_time" => updated_mob.valid_time,
-              "turn_start_time" => updated_mob.turn_stop_time,
+              "turn_start_time" => updated_mob.turn_start_time,
               "turn_stop_time" => updated_mob.turn_stop_time,
               "turn_stop" => updated_mob.turn_stop,
               "fleet_source" => false,

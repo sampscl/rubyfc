@@ -248,7 +248,7 @@ module Paidgeeks
               "type" => "warn_fleet", 
               "fid" => fm.fleet_id,
               "original_message" => msg,
-              "warning" => "razimuth must be >= 0.0 and < 360.0"
+              "warning" => "azimuth must be >= 0.0 and < 360.0"
               })
             return nil
           end
@@ -283,8 +283,8 @@ module Paidgeeks
             return nil
           end
 
-          if origin_mob.template == Paidgeeks::RubyFC::Templates::Missile and msg["range"] > gs.config[:missile_max_scan_range]
-            msg["range"] = gs.config[:missile_max_scan_range]
+          if msg["range"] > origin_mob.template.max_scan_range
+            msg["range"] = origin_mob.template.max_scan_range
           end
 
           @@gsc::scan_msg(gs, msg)

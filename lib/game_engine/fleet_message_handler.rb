@@ -90,14 +90,13 @@ module Paidgeeks
         end
 
         # Scan a region. Note that the area scanned depends on the range of the scan. The area scanned is
-        # always 37.5 square units. These constraints are there to prevent fast and accurate scanning of the entire
-        # game area. This constraint means that the fastest any ship can scan everything is 300 ticks or
-        # 30 seconds at the default of 10 ticks per second. Thus: the area scanned is a pie slice starting
-        # at the source ship and ending range units away at the specified azimuth.
+        # defined in the game config, this causes the width of the scan to vary depending on the range. 
+        # This constraint is there to prevent fast and accurate scanning of the entire game area. The area 
+        # scanned is a pie slice starting at the source ship and ending range units away at the specified azimuth.
         # 
-        # The width of the pie slice is adjusted automatically to enforce the 37.5 square units rule. The 
+        # The width of the pie slice is adjusted automatically to enforce the scanned area rule. The 
         # formula for calculating the scan width is:
-        #   width_in_radians = 37.5 / range
+        #   width_in_radians = scanned_area / range
         #
         # The range of the scan is automatically adjusted according to the game configuration settings.
         # 
