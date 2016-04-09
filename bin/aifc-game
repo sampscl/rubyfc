@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require 'active_record'
+#require 'active_record'
 require 'optparse'
 require 'yaml'
 require_relative '../lib/game_engine/all'
@@ -14,9 +14,9 @@ Signal.trap "INT" do
   SIGNAL_QUEUE << :INT
 end
 
-db = YAML::load_file(Paidgeeks::RubyFC::DB_YML_PATH)
-env = ENV.has_key?("RAILS_ENV") ? ENV["RAILS_ENV"] : "production"
-ActiveRecord::Base.establish_connection(db[env])
+#db = YAML::load_file(Paidgeeks::RubyFC::DB_YML_PATH)
+#env = ENV.has_key?("RAILS_ENV") ? ENV["RAILS_ENV"] : "production"
+#ActiveRecord::Base.establish_connection(db[env])
 
 def parse_command_line
   result = {
