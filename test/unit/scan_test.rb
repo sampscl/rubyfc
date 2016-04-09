@@ -14,6 +14,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1000,
       "mid" => 1,
       "fid" => 1,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(2, FleetManagerTestHelper.new(2), 0, $stdout)
     @gs.mobs[2] = Paidgeeks::RubyFC::Mob.from_msg({ # ne
@@ -21,6 +22,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1500,
       "mid" => 2,
       "fid" => 2,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(3, FleetManagerTestHelper.new(3), 0, $stdout)
     @gs.mobs[3] = Paidgeeks::RubyFC::Mob.from_msg({ # se
@@ -28,6 +30,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 500,
       "mid" => 3,
       "fid" => 3,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(4, FleetManagerTestHelper.new(4), 0, $stdout)
     @gs.mobs[4] = Paidgeeks::RubyFC::Mob.from_msg({ # sw
@@ -35,6 +38,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 500,
       "mid" => 4,
       "fid" => 4,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(5, FleetManagerTestHelper.new(5), 0, $stdout)
     @gs.mobs[5] = Paidgeeks::RubyFC::Mob.from_msg({ # nw
@@ -42,6 +46,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1500,
       "mid" => 5,
       "fid" => 5,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
 
     @gs.add_fleet(6, FleetManagerTestHelper.new(6), 0, $stdout)
@@ -50,6 +55,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1500,
       "mid" => 6,
       "fid" => 6,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(7, FleetManagerTestHelper.new(7), 0, $stdout)
     @gs.mobs[7] = Paidgeeks::RubyFC::Mob.from_msg({ # slight west of north
@@ -57,6 +63,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1500,
       "mid" => 7,
       "fid" => 7,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(8, FleetManagerTestHelper.new(8), 0, $stdout)
     @gs.mobs[8] = Paidgeeks::RubyFC::Mob.from_msg({ # slight east of north
@@ -64,6 +71,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 1500,
       "mid" => 8,
       "fid" => 8,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
 
     @gs.add_fleet(9, FleetManagerTestHelper.new(9), 0, $stdout)
@@ -72,6 +80,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 500,
       "mid" => 9,
       "fid" => 9,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(10, FleetManagerTestHelper.new(10), 0, $stdout)
     @gs.mobs[10] = Paidgeeks::RubyFC::Mob.from_msg({ # slight west of south
@@ -79,6 +88,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 500,
       "mid" => 10,
       "fid" => 10,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
     @gs.add_fleet(11, FleetManagerTestHelper.new(11), 0, $stdout)
     @gs.mobs[11] = Paidgeeks::RubyFC::Mob.from_msg({ # slight east of south
@@ -86,6 +96,7 @@ class ScanTest < MiniTest::Test
       "y_pos" => 500,
       "mid" => 11,
       "fid" => 11,
+      "template" => Paidgeeks::RubyFC::Templates::Fighter,
       })
   end
 
