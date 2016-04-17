@@ -1,34 +1,25 @@
 #!/usr/bin/env ruby
+require 'gtk2'
 
-# ZetCode Ruby Qt tutorial
-#
-# This code shows a tooltip on 
-# a window.
-#
-# author: Jan Bodnar
-# website: www.zetcode.com
-# last modified: September 2012
+button = Gtk::Button.new("Hello World")
+button.signal_connect("clicked") {
+  puts "Hello World"
+}
 
+window = Gtk::Window.new
+window.signal_connect("delete_event") {
+  puts "delete event occurred"
+  #true
+  false
+}
 
-require 'Qt'
+window.signal_connect("destroy") {
+  puts "destroy event occurred"
+  Gtk.main_quit
+}
 
+window.border_width = 10
+window.add(button)
+window.show_all
 
-class QtApp < Qt::Widget
-
-    def initialize
-        super
-        
-        setWindowTitle "Tooltip"
-
-        setToolTip "This is Qt::Widget"
-        
-        resize 250, 150
-        move 300, 300
-
-        show
-    end
-end
-
-app = Qt::Application.new ARGV
-QtApp.new
-app.exec
+Gtk.main

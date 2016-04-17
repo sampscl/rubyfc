@@ -178,7 +178,7 @@ module Paidgeeks
             next if target_mob.nil? # target already destroyed
 
             # send target_mob to mun_mob's fleet as a missile target update
-            Paidgeeks::RubyFC::Engine::GameStateChanger::munition_intercept_msg(gs, {
+            Paidgeeks::RubyFC::Engine::GameStateChanger::missile_target_update_msg(gs, {
               "type" => "missile_target_update",
               "munition_mid" => mun_mob.mid,
               "target_mid" => target_mob.mid,

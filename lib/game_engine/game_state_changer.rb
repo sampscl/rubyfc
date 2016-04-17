@@ -359,7 +359,32 @@ module Paidgeeks
         def self.munition_intercept_msg(gs, msg)
           mob = gs.mobs[msg["munition_mid"]]
           fleet = gs.fleets[mob.fid]
+          gs.mission.event_munition_intercept(msg["munition_mid"], msg["target_mid"]) if !gs.mission.nil?
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "munition_intercept_notify"}))
+        end
+
+        # Notify fleet of munition target updates. This doesn't really change the gamestate,
+        # but it does follow the *_notify pattern for fleet notification for interesting events.
+        #
+        # This will generate a _notify message to the fleet.
+        #
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "missile_target_update",
+        #     "munition_mid" => mun_mob.mid,
+        #     "target_mid" => target_mob.mid,
+        #     "x_pos" => target_mob.x_pos,
+        #     "y_pos" => target_mob.y_pos,
+        #     "heading" => target_mob.heading,
+        #     "velocity" => target_mob.velocity,
+        #     "valid_time" => target_mob.valid_time,
+        #     "template" => target_mob.template.class.name,
+        #     "fleet_source" => false | true,
+        #   }
+        def missile_target_update_msg(gs, msg)
+          mob = gs.mobs[msg["munition_mid"]]
+          fleet = gs.fleets[mob.fid]
+          msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "missile_target_update_notify"}))
         end
 
         # Reduce mobs hitpoints

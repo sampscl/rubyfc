@@ -59,10 +59,17 @@ module Paidgeeks
               "fleet_source" => false,
               })
 
+            #
+            # Monkeypatches to create custom configuration
+            #
+
             # in order to allow fighting with no credits, the cost of 
-            # munitions must be zero. Monkeypatch that in to the game.
+            # munitions must be zero. 
             Paidgeeks::RubyFC::Templates::Rocket.define_singleton_method(:credit_cost) { 0 }
             Paidgeeks::RubyFC::Templates::Missile.define_singleton_method(:credit_cost) { 0 }
+
+            # Extend the range of the gunship's scanners to speed up the action
+            Paidgeeks::RubyFC::Templates::Gunship.define_singleton_method(:max_scan_range) { 2500.0 }
 
             # each fleet gets 1 gunship starting in a random location
             gsc::create_mob_msg(gs, {
@@ -95,6 +102,13 @@ module Paidgeeks
         # Parameters:
         # - gs => The gamestate
         def update_mission(gs)
+        end
+
+        # Notification for when a munition has hit a target.
+        # Parameters:
+        # - mun_mid => The munition mid
+        # - target_mid => The target mid
+        def event_munition_intercept(mun_mid, target_mid)
         end
 
         # Determine if the mission is complete. This is the last thing to happen at the 
