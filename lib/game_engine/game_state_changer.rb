@@ -452,6 +452,7 @@ module Paidgeeks
                     "turn_stop_time" => 0.0,
                     "turn_stop" => 0.0,
                     "template" => mob.template.name,
+                    "fid" => mob.fid,
                   }
                 end # inside slice pair
               end # slice pairs
