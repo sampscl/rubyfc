@@ -265,7 +265,7 @@ module Paidgeeks
 
           Paidgeeks::RubyFC::Engine::GameStateChanger::set_energy_msg(gs, {
             "type" => "set_energy",
-            "amount" => new_energy,
+            "new_energy" => new_energy,
             "mid" => mob.mid,
             "fleet_source" => false,
             })

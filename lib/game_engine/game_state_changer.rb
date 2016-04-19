@@ -279,13 +279,13 @@ module Paidgeeks
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "set_energy",
-        #     "amount" => Amount of energy 
+        #     "new_energy" => Amount of energy 
         #     "mid" => mob id
         #     "fleet_source" => false | true,
         #   }
         def self.set_energy_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
-          mob.energy = msg["amount"]
+          mob.energy = msg["new_energy"]
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "set_energy_notify"}))
         end
