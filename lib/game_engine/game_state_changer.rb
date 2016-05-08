@@ -305,6 +305,7 @@ module Paidgeeks
         #     "heading" => heading of new mob,
         #     "velocity" => velocity of new mob,
         #     "turn_rate" => turn rate of new mob,
+        #     "valid_time" => time of validity for the new mob,
         #     "turn_start_time" => turn start time of new mob,
         #     "turn_stop_time" => turn stop time of new mob,
         #     "turn_stop" => turn stop of new mob,
