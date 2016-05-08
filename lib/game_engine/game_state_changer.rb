@@ -34,6 +34,7 @@ module Paidgeeks
           gs.tick += 1
           gs.time = gs.tick * gs.config[:seconds_per_tick]
           gs.tick_scan_reports = []
+          gs.munition_intercepts = []
         end
 
         # Send a warning message to a fleet. This is not really a game state change, 
@@ -359,8 +360,9 @@ module Paidgeeks
         def self.munition_intercept_msg(gs, msg)
           mob = gs.mobs[msg["munition_mid"]]
           fleet = gs.fleets[mob.fid]
-          gs.mission.event_munition_intercept(msg["munition_mid"], msg["target_mid"]) if !gs.mission.nil?
+          gs.mission.event_munition_intercept(gs, msg["munition_mid"], msg["target_mid"]) if !gs.mission.nil?
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "munition_intercept_notify"}))
+          gs.munition_intercepts << msg
         end
 
         # Notify fleet of munition target updates. This doesn't really change the gamestate,

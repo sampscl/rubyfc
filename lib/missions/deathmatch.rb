@@ -104,11 +104,12 @@ module Paidgeeks
         def update_mission(gs)
         end
 
-        # Notification for when a munition has hit a target.
+        # Notification for when a munition has hit a target. A good place to keep score.
         # Parameters:
+        # - gs => The gamestate
         # - mun_mid => The munition mid
         # - target_mid => The target mid
-        def event_munition_intercept(mun_mid, target_mid)
+        def event_munition_intercept(gs, mun_mid, target_mid)
         end
 
         # Determine if the mission is complete. This is the last thing to happen at the 
