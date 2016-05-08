@@ -2,6 +2,7 @@
 #require 'active_record'
 require 'optparse'
 require 'yaml'
+require 'fileutils'
 require_relative '../lib/game_engine/all'
 require_relative '../config/constants'
 require_relative '../config/config'
@@ -50,6 +51,8 @@ def main
   opts = parse_command_line
   if not opts[:just_show_transcript]
     gc = Paidgeeks::RubyFC::Engine::GameCoordinator.new
+
+    FileUtils.mkdir_p(Paidgeeks::RubyFC::LOG_DIR) if not Dir.exist?(Paidgeeks::RubyFC::LOG_DIR)
 
     File.open(File.join(Paidgeeks::RubyFC::LOG_DIR, opts[:game_log_file_name]),"w+t") do |journal|
       opts[:journal] = journal
