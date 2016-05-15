@@ -24,23 +24,10 @@ module Paidgeeks
           fm.queue_output(Paidgeeks.encode(msg))
         end
 
-        # Tick
-        # Parameters:
-        # - msg => A Hash: {
-        #     "type" => "tick"
-        #     "fleet_source" => false | true,
-        # }
-        def self.tick_msg(gs, msg)
-          gs.tick += 1
-          gs.time = gs.tick * gs.config[:seconds_per_tick]
-          gs.tick_scan_reports = []
-          gs.munition_intercepts = []
-        end
-
         # Send a warning message to a fleet. This is not really a game state change, 
         # but it will generate a fleet message. It's basically syntactic sugar for
         # msg_to_fleet. Note the name does not end in _msg, so this method will
-        # NOT be journaled (but msg_to_fleet will).
+        # NOT be journaled (but msg_to_fleet will, due to the logging aspect).
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "warn_fleet",
@@ -51,6 +38,19 @@ module Paidgeeks
         def self.warn_fleet(gs, msg)
           fleet = gs.fleets[msg["fid"]]
           msg_to_fleet(gs, fleet[:manager], msg)
+        end
+
+        # Tick. This also, somewhat unexpectedly, resets the "...in the last tick" state members.
+        # Parameters:
+        # - msg => A Hash: {
+        #     "type" => "tick"
+        #     "fleet_source" => false | true,
+        # }
+        def self.tick_msg(gs, msg)
+          gs.tick += 1
+          gs.time = gs.tick * gs.config[:seconds_per_tick]
+          gs.tick_scan_reports = []
+          gs.munition_intercepts = []
         end
 
         # Update tick acknowledged for a fleet
@@ -81,7 +81,7 @@ module Paidgeeks
           fm.fleet_metadata["fleet_name"] = msg["fleet_name"]
         end
 
-        # Add a fleet
+        # Add a fleet. This also creates the fleet manager to manage the fleet.
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "add_fleet"
@@ -147,6 +147,14 @@ module Paidgeeks
         # (and complicating scanning logic), motion is not wrapped around a-la pacman. Instead, mobs will
         # just stop at the barrier created by the boundary.
         #
+        # Also, note that the msg parameter is modified directly by this function. This is not 
+        # typical behavor for the gsc, since it normally will trust any input. In this case, it
+        # does not trust the positional data (x and y position). This is due to the Mob class
+        # being playing-field agnostic but the game needs to enforce the rules somewhere. The other
+        # sensible option would be to create a rules enforcement clasa that proxies access to the
+        # game state changer and therefore ensures that all the rules are being followed. That 
+        # feels like overkill at this point.
+        #
         # This will generate a _notify message to the fleet.
         #
         # Parameters:
@@ -170,19 +178,19 @@ module Paidgeeks
         def self.integrate_mob_msg(gs, msg)
 
           # clamp x and y to be inside the playfield (this is a case of legal motion creating illegal game state)
-          while msg["x_pos"] < 0.0
+          if msg["x_pos"] < 0.0
             msg = msg.merge({"x_pos" => 0.0})
           end
 
-          while msg["x_pos"] >= gs.config[:field_width]
+          if msg["x_pos"] >= gs.config[:field_width]
             msg = msg.merge({"x_pos" => gs.config[:field_width] - 1.0})
           end
 
-          while msg["y_pos"] < 0
+          if msg["y_pos"] < 0
             msg = msg.merge({"y_pos" => 0.0})
           end
 
-          while msg["y_pos"] >= gs.config[:field_height]
+          if msg["y_pos"] >= gs.config[:field_height]
             msg = msg.merge({"y_pos" => gs.config[:field_height] - 1.0})
           end
 
