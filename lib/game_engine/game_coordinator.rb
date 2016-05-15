@@ -1,4 +1,5 @@
 require 'thread'
+require 'concurrent'
 require_relative 'all'
 require_relative '../../config/constants'
 require_relative '../utilities/class_from_string'
@@ -141,59 +142,64 @@ module Paidgeeks
           gs.mission.update_mission(gs)
 
           # begin tick fleet
-          # read fleet inputs
-          # process logging
-          # process fleet inputs
-          gs.fleets.each do |fid, fleet| 
-            fm = fleet[:manager]
-            if :alive != fm.fleet_state
-              # logging (all fleets get to log, even dead ones)
-              fm.process_logging(gs)
-              next
-            end
-
-            gsc::msg_to_fleet(gs, fm, {"type" => "begin_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
-            fm.cache_inputs(gs)
-            fm.process_logging(gs)
-            fm.process_inputs(smp, gs)
-          end
+          gs.fleets.each { |fid, fleet| begin_tick_fleet(fid, fleet) }
 
           # update mobs' kinematics, energy, and do collosion detection
           ke.update(last_time, gs)
 
           # end tick
-          # send fleet outputs
-          # read inputs and process for up to 1 second in order to receive tick acknowledgement
-          gs.fleets.each do |fid, fleet| 
-            fm = fleet[:manager]
-            next if :alive != fm.fleet_state
-
-            gsc::msg_to_fleet(gs, fm, {"type" => "end_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
-            fm.flush_output
-
-            stop_at = Time.now + 1.0
-            while fleet[:last_ack_tick] != gs.tick and Time.now <= stop_at
-              Thread.pass
-              fm.cache_inputs(gs)
-              fm.process_logging(gs)
-              fm.process_inputs(smp, gs)
-            end
-
-            if fleet[:last_ack_tick] != gs.tick
-              gsc::disqualify_fleet_msg(gs, {
-                "type" => "disqualify_fleet",
-                "fid" => fid,
-                "error" => "Failure to acknowledge tick",
-                "backtrace" => "",
-                "inspected_args" => [],
-                "fleet_source" => false,
-                })
-            end
-          end
+          gs.fleets.each { |fid, fleet| end_tick_fleet(fid, fleet) }
 
           # evaluate mission, release cpu to help give fleets some time to do their fleet thing
           gs.mission.mission_complete?(gs) ? :finished : :in_progress
         end # game_tick
+
+        # Process a single fleet at the beginning of a tick
+        def begin_tick_fleet(fid, fleet)
+          # read fleet inputs
+          # process logging
+          # process fleet inputs
+          fm = fleet[:manager]
+          if :alive != fm.fleet_state
+            # logging (all fleets get to log, even dead ones)
+            fm.process_logging(gs)
+          else
+            gsc::msg_to_fleet(gs, fm, {"type" => "begin_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
+            fm.cache_inputs(gs)
+            fm.process_logging(gs)
+            fm.process_inputs(smp, gs)
+          end
+        end
+
+        # Process a single fleet at the end of a tick
+        def end_tick_fleet(fid, fleet)
+          # send fleet outputs
+          # read inputs and process for up to 1 second in order to receive tick acknowledgement
+          fm = fleet[:manager]
+          return if :alive != fm.fleet_state
+
+          gsc::msg_to_fleet(gs, fm, {"type" => "end_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
+          fm.flush_output
+
+          stop_at = Time.now + 1.0
+          while fleet[:last_ack_tick] != gs.tick and Time.now <= stop_at
+            Thread.pass
+            fm.cache_inputs(gs)
+            fm.process_logging(gs)
+            fm.process_inputs(smp, gs)
+          end
+
+          if fleet[:last_ack_tick] != gs.tick
+            gsc::disqualify_fleet_msg(gs, {
+              "type" => "disqualify_fleet",
+              "fid" => fid,
+              "error" => "Failure to acknowledge tick",
+              "backtrace" => "",
+              "inspected_args" => [],
+              "fleet_source" => false,
+              })
+          end
+        end
       end
     end
   end
