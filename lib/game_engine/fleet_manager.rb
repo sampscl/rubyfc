@@ -44,7 +44,7 @@ module Paidgeeks
         def cleanup
           status = :already_dead
           if !@wait_thr.nil?
-            p = @wait_thr[:pid]
+            p = @wait_thr.pid
             [@stdin, @stdout, @stderr].each { |s| s.close }
             if Paidgeeks::PidState.pid_state(p) == :alive
               Process.kill("TERM", p) 
@@ -60,6 +60,8 @@ module Paidgeeks
               status = :sigkill
             end
             @stdin = @stdout = @stderr = @wait_thr = nil
+          else
+            status = :not_started
           end
           status
         end
