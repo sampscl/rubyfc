@@ -32,7 +32,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 # gem 'capistrano-rails', group: :development
 
 gem 'aspector'
-gem 'concurrent'
+gem 'concurrent-ruby'
 
 # facter for cpu count and other "system facts"
 gem 'facter'
