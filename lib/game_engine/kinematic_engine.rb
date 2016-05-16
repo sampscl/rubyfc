@@ -1,33 +1,12 @@
 require 'thread'
-require 'facter'
+require 'concurrent'
 require_relative './game_state_changer'
 module Paidgeeks
   module RubyFC
     module Engine
       class KinematicEngine
-        # Initialize
-        # Parameters:
-        # - gs => The gamestate; used to determine how many CPUs can be used
-        def initialize(gs)
-          @threads = []
-          @out_queues = []
-          @in_queues = []
-          limit = 0 # the real limit - 1 since (0..limit) will loop once if limit == 0
-          if 0 == gs.config[:kinematic_threads_limit] # unlimited: use cpu count
-            limit = Facter.value('processors')['count'] - 1
-          else # use kinematic_threads_limit as upper limit but try to use all the cpus
-            limit = ([gs.config[:kinematic_threads_limit],Facter.value('processors')['count']].min) - 1
-          end
-          (0..limit).each do |cpu|
-            @out_queues << Queue.new
-            @in_queues << Queue.new
-            @threads << Thread.new { update_thread(@in_queues[cpu], @out_queues[cpu]) } 
-          end
-        end
 
         def cleanup
-          @in_queues.each { |q| q.enq([nil,nil]) }
-          @threads.each { |t| t.join }
         end
 
         # Perform once-a-tick updates on mobs: kinematic integration, energy update, and
@@ -38,59 +17,55 @@ module Paidgeeks
         def update(last_time, gs)
           munitions = []
           to_time = gs.time
-          gs.mobs.each do |mid,mob| 
-            update_energy(last_time, gs, mob) 
-            @in_queues.sample.enq([to_time, mob]) 
+
+          futures = gs.mobs.collect do |mid,mob| 
             munitions << mob if mob.template.munition?
-          end
+            Concurrent::Future.execute do 
+              update_energy(last_time, gs, mob)
 
-          # wait for threads to consume their input
-          more = true
-          while more do
-            Thread.pass
-            more = false
-            @in_queues.each { |q| more |= (not q.empty?)}
-          end
+              transient_mob = mob.integrate(to_time)
+              msg = {
+                "type" => "integrate_mob",
+                "mid" => transient_mob.mid,
+                "fid" => transient_mob.fid,
+                "x_pos" => transient_mob.x_pos,
+                "y_pos" => transient_mob.y_pos,
+                "heading" => transient_mob.heading,
+                "velocity" => transient_mob.velocity,
+                "turn_rate" => transient_mob.turn_rate,
+                "valid_time" => transient_mob.valid_time,
+                "turn_start_time" => transient_mob.turn_start_time,
+                "turn_stop_time" => transient_mob.turn_stop_time,
+                "turn_stop" => transient_mob.turn_stop,
+                "fleet_source" => false,
+              }
+              updated_mob = Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, msg)
 
-          # wait for threads to be waiting on more input (so we know they've produced all their output)
-          more = true
-          while more do
-            Thread.pass
-            more = false
-            @in_queues.each { |q| more |= (q.num_waiting() == 0) }
-          end
-          
-          # process all output
-          @out_queues.each do |q| 
-            begin
-              loop do 
-                msg = q.deq(true)
-                updated_mob = Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, msg)
+              # check expiration of missiles and rockets
+              if Paidgeeks::RubyFC::Templates::Missile == updated_mob.template 
+                if updated_mob.create_time + gs.config[:missile_life_time] < updated_mob.valid_time
+                  Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
+                    "type" => "delete_mob",
+                    "mid" => updated_mob.mid,
+                    "reason" => "no fuel",
+                    "fleet_source" => false,
+                    })
+                end # end if time to die
+              elsif Paidgeeks::RubyFC::Templates::Rocket == updated_mob.template
+                if updated_mob.create_time + gs.config[:rocket_life_time] < updated_mob.valid_time
+                  Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
+                    "type" => "delete_mob",
+                    "mid" => updated_mob.mid,
+                    "reason" => "no fuel",
+                    "fleet_source" => false,
+                    })
+                end # end if time to die
+              end # end if rocket
+            end # end Concurrent::Future.execute block
+          end # end all mobs collect
 
-                # check expiration of missiles and rockets
-                if Paidgeeks::RubyFC::Templates::Missile == updated_mob.template 
-                  if updated_mob.create_time + gs.config[:missile_life_time] < updated_mob.valid_time
-                    Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
-                      "type" => "delete_mob",
-                      "mid" => updated_mob.mid,
-                      "reason" => "no fuel",
-                      "fleet_source" => false,
-                      })
-                  end
-                elsif Paidgeeks::RubyFC::Templates::Rocket == updated_mob.template
-                  if updated_mob.create_time + gs.config[:rocket_life_time] < updated_mob.valid_time
-                    Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
-                      "type" => "delete_mob",
-                      "mid" => updated_mob.mid,
-                      "reason" => "no fuel",
-                      "fleet_source" => false,
-                      })
-                  end
-                end
-              end
-            rescue ThreadError # silently consume exception when queue is empty (deq(true) raises ThreadError when empty)
-            end
-          end # end all out_queues
+          # make sure concurrent processing is complete
+          futures.each { |f| f.value }
 
           # reprocess all mobs for collisions and missile target updates
           process_collisions(last_time, munitions, gs) if munitions.any?

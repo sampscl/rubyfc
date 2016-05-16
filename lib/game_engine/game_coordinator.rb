@@ -58,7 +58,7 @@ module Paidgeeks
           # initialize other engine components
           @gsc = Paidgeeks::RubyFC::Engine::GameStateChanger # NOTE: this is *not* an instance! It's just shorthand
           @smp = Paidgeeks::RubyFC::Engine::SanitizedMessageProcessor.new
-          @ke = Paidgeeks::RubyFC::Engine::KinematicEngine.new(gs)
+          @ke = Paidgeeks::RubyFC::Engine::KinematicEngine.new
 
           # load & initialize mission
           gs.mission = Paidgeeks::class_from_string(opts[:mission]).new
@@ -141,14 +141,16 @@ module Paidgeeks
           # update mission
           gs.mission.update_mission(gs)
 
-          # begin tick fleet
-          gs.fleets.each { |fid, fleet| begin_tick_fleet(fid, fleet) }
+          # begin tick fleets
+          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute {begin_tick_fleet(fid, fleet)} }
+          futures.each { |f| f.value } # force completion of each future
 
           # update mobs' kinematics, energy, and do collosion detection
           ke.update(last_time, gs)
 
-          # end tick
-          gs.fleets.each { |fid, fleet| end_tick_fleet(fid, fleet) }
+          # end tick fleets
+          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute {end_tick_fleet(fid, fleet)} }
+          futures.each { |f| f.value } # force completion of each future
 
           # evaluate mission, release cpu to help give fleets some time to do their fleet thing
           gs.mission.mission_complete?(gs) ? :finished : :in_progress

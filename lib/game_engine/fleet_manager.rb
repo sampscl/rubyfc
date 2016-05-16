@@ -1,4 +1,5 @@
 require 'open3'
+require 'thread'
 require_relative '../../config/constants'
 require_relative '../utilities/pid_state'
 require_relative '../utilities/stream_comms'
@@ -27,6 +28,7 @@ module Paidgeeks
           @input_queue = [] # encoded and JSON'ed
 
           @log_stream = ls
+          @instance_lock = Mutex.new
 
           begin
             @stdin, @stdout, @stderr, @wait_thr = Open3.popen3(ff)
@@ -110,7 +112,9 @@ module Paidgeeks
 
         # Queue a message for output. The message must already be encoded.
         def queue_output(msg)
-          @output_queue << msg
+          @instance_lock.synchronize do
+            @output_queue << msg
+          end
         end
 
         # private stuff

@@ -33,9 +33,7 @@ gem 'sdoc', '~> 0.4.0', group: :doc
 
 gem 'aspector'
 gem 'concurrent-ruby'
-
-# facter for cpu count and other "system facts"
-gem 'facter'
+gem 'concurrent-ruby-ext'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

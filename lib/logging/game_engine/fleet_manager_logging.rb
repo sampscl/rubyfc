@@ -4,6 +4,7 @@ module Paidgeeks
     module Logging
       module Engine
         class FleetManagerLoggingAspect < BaseLogging
+
           around :log, method_arg: true do |method, proxy, *args, &block|
             result = nil
             begin

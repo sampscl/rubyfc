@@ -38,7 +38,7 @@ class MunitionExpirationTest < MiniTest::Test
   end
 
   def test_munition_expiration
-    ke = Paidgeeks::RubyFC::Engine::KinematicEngine.new(@gs)
+    ke = Paidgeeks::RubyFC::Engine::KinematicEngine.new
     smp = Paidgeeks::RubyFC::Engine::SanitizedMessageProcessor.new
     gsc = Paidgeeks::RubyFC::Engine::GameStateChanger
     fm = @gs.fleets[1][:manager]
