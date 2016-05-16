@@ -142,14 +142,14 @@ module Paidgeeks
           gs.mission.update_mission(gs)
 
           # begin tick fleets
-          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute {begin_tick_fleet(fid, fleet)} }
+          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute(executor: Concurrent.global_io_executor) {begin_tick_fleet(fid, fleet)} }
           futures.each { |f| f.value } # force completion of each future
 
           # update mobs' kinematics, energy, and do collosion detection
           ke.update(last_time, gs)
 
           # end tick fleets
-          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute {end_tick_fleet(fid, fleet)} }
+          futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute(executor: Concurrent.global_io_executor) {end_tick_fleet(fid, fleet)} }
           futures.each { |f| f.value } # force completion of each future
 
           # evaluate mission, release cpu to help give fleets some time to do their fleet thing

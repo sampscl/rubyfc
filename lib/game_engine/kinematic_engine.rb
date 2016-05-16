@@ -20,7 +20,7 @@ module Paidgeeks
 
           futures = gs.mobs.collect do |mid,mob| 
             munitions << mob if mob.template.munition?
-            Concurrent::Future.execute do 
+            Concurrent::Future.execute(executor: Concurrent.global_io_executor) do 
               update_energy(last_time, gs, mob)
 
               transient_mob = mob.integrate(to_time)
@@ -191,37 +191,6 @@ module Paidgeeks
           return false if y1min > y2max
           return false if y1max < y2min
           true
-        end
-
-        # This thread waits on to_time,mob on the input queue, 
-        # integrates the mob and puts the update message on 
-        # the output queue. The thread will exit when [nil,nil]
-        # is passed on the input.
-        # Parameters:
-        # - inq => a Queue instance containing [to_time, mob] pairs
-        # - outq => a Queue instance containing message hashes
-        def update_thread(inq, outq)
-          loop do
-            to_time,mob = inq.deq
-            break if to_time.nil? or mob.nil?
-            updated_mob = mob.integrate(to_time)
-
-            outq.enq({
-              "type" => "integrate_mob",
-              "mid" => updated_mob.mid,
-              "fid" => updated_mob.fid,
-              "x_pos" => updated_mob.x_pos,
-              "y_pos" => updated_mob.y_pos,
-              "heading" => updated_mob.heading,
-              "velocity" => updated_mob.velocity,
-              "turn_rate" => updated_mob.turn_rate,
-              "valid_time" => updated_mob.valid_time,
-              "turn_start_time" => updated_mob.turn_start_time,
-              "turn_stop_time" => updated_mob.turn_stop_time,
-              "turn_stop" => updated_mob.turn_stop,
-              "fleet_source" => false,
-            })
-          end
         end
 
         # Update a mobs energy
