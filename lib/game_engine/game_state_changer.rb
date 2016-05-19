@@ -34,6 +34,7 @@ module Paidgeeks
         #     "original_message" => the original message hash that caused this warning,
         #     "warning" => text string describing the warning (e.g. "source_ship invalid")
         #     "fleet_source" => false | true,
+        #     "fid" => fleet id,
         #   }
         def self.warn_fleet(gs, msg)
           fleet = gs.fleets[msg["fid"]]
@@ -143,7 +144,7 @@ module Paidgeeks
         end
 
         # Integrate a mob (kinematic repositioning). This also does game rule enforcement for position:
-        # all mobs most remain on the playing field. To prevent mobs from "hiding" just on the other side
+        # all mobs must remain on the playing field. To prevent mobs from "hiding" just on the other side
         # (and complicating scanning logic), motion is not wrapped around a-la pacman. Instead, mobs will
         # just stop at the barrier created by the boundary.
         #
@@ -151,7 +152,7 @@ module Paidgeeks
         # typical behavor for the gsc, since it normally will trust any input. In this case, it
         # does not trust the positional data (x and y position). This is due to the Mob class
         # being playing-field agnostic but the game needs to enforce the rules somewhere. The other
-        # sensible option would be to create a rules enforcement clasa that proxies access to the
+        # sensible option would be to create a rules enforcement class that proxies access to the
         # game state changer and therefore ensures that all the rules are being followed. That 
         # feels like overkill at this point.
         #
@@ -354,7 +355,8 @@ module Paidgeeks
         end
 
         # Notify fleet one if its munitions intercepted something, this doesn't really change the gamestate,
-        # but it does follow the *_notify pattern for fleet notification for interesting events.
+        # but it does follow the *_notify pattern for fleet notification for interesting events. It also 
+        # notifies the mission that someone scored a hit.
         #
         # This will generate a _notify message to the fleet.
         #
@@ -486,24 +488,6 @@ module Paidgeeks
           fleet = gs.fleets[source_ship.fid]
           msg_to_fleet(gs, fleet[:manager], scan_report)
           gs.tick_scan_reports << scan_report
-        end
-
-        # Send game config to a fleet. This doesn't really
-        # change the gamestate, but it is here to identify the game-to-fleet API. 
-        # This message is a bit different
-        # than most because the message fields are open-ended. The game's 
-        # "config.yml" file holds the default config, but missions will both
-        # override those defaults and add their own parameters. This is also
-        # how the fleet is informed of the mission name.
-        # Parameters:
-        # - msg => A Hash: {
-        #     "type" => "game_config",
-        #     "field_width" => the field width, you can't go < 0 or greater than this
-        #     "field_height" => the field height, you can't go < 0 or greater than this
-        #     "fid" => fleet id
-        #     "fleet_source" => false | true,
-        #   }
-        def self.game_config_msg(gs, msg)
         end
 
         # Set mob speed.
