@@ -91,7 +91,7 @@ module Paidgeeks
               "hitpoints" => Paidgeeks::RubyFC::Templates::Gunship.hit_points,
               "last_scan_tick" => 0,
               "target_mid" => nil,
-              "launch_param" => nil,
+              "launch_param" => "Main Gunship",
               "fleet_source" => false,
             })
           end
