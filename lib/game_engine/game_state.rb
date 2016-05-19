@@ -3,7 +3,7 @@ module Paidgeeks
   module RubyFC
     module Engine
       class GameState
-        attr_accessor :fleets # hash of fid => # fid is fleet id
+        attr_accessor :fleets # hash of fid => {} # fid is fleet id, see add_fleet for Hash definition
           # {
           #   manager => FleetManager, 
           #   mobs => Set.new(), # Set of mid that belong to fleet (mid is mob id)

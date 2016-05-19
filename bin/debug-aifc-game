@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+begin
+  require 'pry'
+rescue LoadError
+  puts("Error loading pry gem, pry will not be available.")
+end
+require_relative 'aifc-game'
+require_relative '../lib/utilities/debug_utils'
+
+class PaidgeeksHookAspect < Aspector::Base
+  around :write_object, method_arg: true do |method, proxy, stream, object, &block|
+    if :debug != $log_level
+      len = $stdout.write("message => ")
+      PP.pp(object, $stdout, 80-len)
+    end
+    proxy.call(stream, object)
+  end
+end
+PaidgeeksHookAspect.apply(Paidgeeks, class_methods: true)
+
+# monkey patch run_game
+def run_game(gc)
+  Paidgeeks::DebugUtils.debug(gc)
+end
+
+def debug_main
+  main() if :init == Paidgeeks::DebugUtils.debug(nil)
+end
+
+if __FILE__ == $0
+  debug_main
+end
