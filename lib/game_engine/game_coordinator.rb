@@ -135,7 +135,7 @@ module Paidgeeks
         def game_tick(last_time)
           return :finished if gs.tick >= gs.config[:max_game_ticks]
 
-          # tick
+          # tick and update the time
           gsc::tick_msg(gs, {"type" => "tick", "fleet_source" => false})
 
           # update mission

@@ -41,7 +41,7 @@ module Paidgeeks
           msg_to_fleet(gs, fleet[:manager], msg)
         end
 
-        # Tick. This also, somewhat unexpectedly, resets the "...in the last tick" state members.
+        # Tick and update the time. This also, somewhat unexpectedly, resets the "...in the last tick" state members.
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "tick"
