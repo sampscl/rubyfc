@@ -20,7 +20,7 @@ module Paidgeeks
 
           futures = gs.mobs.collect do |mid,mob| 
             munitions << mob if mob.template.munition?
-            Concurrent::Future.execute(executor: Concurrent.global_io_executor) do 
+            Concurrent::Future.execute(executor: Concurrent.global_immediate_executor) do 
               update_energy(last_time, gs, mob)
 
               transient_mob = mob.integrate(to_time)

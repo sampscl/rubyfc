@@ -79,10 +79,12 @@ def main
 end
 
 def run_game(gc)
+  puts("Game start at #{Time.now}")
   last_time = gc.gs.time
   while !SIGNAL_QUEUE.any? and :in_progress == gc.game_tick(last_time)
     last_time = gc.gs.time
   end
+  puts("Game finish at #{Time.now}")
 end
 
 if __FILE__ == $0
