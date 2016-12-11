@@ -1,4 +1,3 @@
-*.sublime-workspace
 log/*
 garbage.rb
 vendor/bundle
