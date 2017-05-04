@@ -66,8 +66,6 @@ def main
     File.open(journal_file_name,"w+t") do |journal|
       opts[:journal] = journal
 
-      Game.create!()
-
       gc.game_setup(opts)
 
       run_game(gc)
