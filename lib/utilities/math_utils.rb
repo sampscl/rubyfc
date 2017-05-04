@@ -1,5 +1,5 @@
 module Paidgeeks
-  module_function 
+  module_function
 
   # handy constants
   TWOPI = 2.0*Math::PI
@@ -26,7 +26,7 @@ module Paidgeeks
    is_near(value, 0.0)
   end
 
-  # Ensure that the angle given is >=0 and <= 2PI
+  # Ensure that the angle given is >=0 and < 2PI
   def normalize_to_circle(radians)
     while(radians >= TWOPI)
       radians -= TWOPI
@@ -130,7 +130,7 @@ module Paidgeeks
   # Returns:
   # - Float => Time until point of closest approach. Will be negative
   #   if in the past. Will return Float::INFINITY if the mobs are not
-  #   mobing or are parallel to each other, 
+  #   mobing or are parallel to each other,
   #   Units are same as deniminator of velocity.
   def ttg_pca_angles(x1,y1,hdg1,vel1,x2,y2,hdg2,vel2)
     v1x = Math.sin(hdg1) * vel1
@@ -150,25 +150,25 @@ module Paidgeeks
     # dA/dt = 0
     v1x_minus_v2x = v1x - v2x
     v1y_minus_v2y = v1y - v2y
-    
-    numerator = 
-      (-( x1 - x2 ) * v1x_minus_v2x ) - 
+
+    numerator =
+      (-( x1 - x2 ) * v1x_minus_v2x ) -
       ( ( y1 - y2 ) * v1y_minus_v2y )
-        
-    denominator = 
+
+    denominator =
       (v1x_minus_v2x * v1x_minus_v2x) +
       (v1y_minus_v2y * v1y_minus_v2y)
-    
+
     if near_zero(denominator) # denominator is zero, so ttg is infinite
       return Float::INFINITY
     end
-        
+
     # return the time to go
     return numerator / denominator;
   end
 
   # Calculate the course (aka heading) in radians needed for
-  # m1 to intercept m2 in the shortest possible time. This 
+  # m1 to intercept m2 in the shortest possible time. This
   # ignores acceleration by assuming m1 can instantly change
   # heading and that m2 will not accelerate. If this is not
   # the case (and it almost never is), then call this method
@@ -191,7 +191,7 @@ module Paidgeeks
     v2y = Math.cos(m2.heading) * m2.velocity
     calc_intercept(m1.x_pos,m1.y_pos,m1.velocity,m2.x_pos,m2.y_pos,v2x,v2y)
   end
-  
+
   # See calc_intercept_mobs for what this does. v1 MUST be > 0
   def calc_intercept(x1,y1,v1,x2,y2,v2x,v2y)
 
@@ -205,20 +205,20 @@ module Paidgeeks
     p2x_minus_p1x = x2 - x1
     p2y_minus_p1y = y2 - y1
     ttg = 0.0
-    
-    a = 
-    ( v2x * v2x ) + 
+
+    a =
+    ( v2x * v2x ) +
     ( v2y * v2y ) -
     ( v1 * v1 )
-    
-    b = 
+
+    b =
       2.0 * ( ( p2x_minus_p1x * v2x ) +
               ( p2y_minus_p1y * v2y ) )
-    
-    c = 
+
+    c =
       ( p2x_minus_p1x * p2x_minus_p1x ) +
-      ( p2y_minus_p1y * p2y_minus_p1y ) 
-    
+      ( p2y_minus_p1y * p2y_minus_p1y )
+
     b_squared = b * b;
     b_squared_minus_4ac = b_squared - (4.0*a*c);
 
@@ -228,8 +228,8 @@ module Paidgeeks
     end
 
     #puts("a:#{a} b:#{b} c:#{c} b_squared_minus_4ac:#{b_squared_minus_4ac}")
-    
-    # check for no solution or degenerate  
+
+    # check for no solution or degenerate
     # case of target (P2) standing still
     if near_zero(a) # relative velocity is zero (target and interceptor have same speed)
       if near_zero(v1) # no solution: interceptor is not moving
@@ -241,7 +241,7 @@ module Paidgeeks
         numerator2 = ((p2x_minus_p1x * v2y * p2x_minus_p1x * v2y) - (p2y_minus_p1y * v2x * p2y_minus_p1y * v2x)).abs # abs to correct for tiny but slightly negative numbers that should actually be zero
         denominator = (Math::sqrt((p2x_minus_p1x*p2x_minus_p1x) + (p2y_minus_p1y*p2y_minus_p1y)) * Math::sqrt((v2x*v2x) + (v2y*v2y)))
         sin_alpha = Math::sqrt(numerator2) / denominator
-          
+
 
         intercept_course = normalize_to_circle(
           relative_angle(0.0,0.0,p2x_minus_p1x,p2y_minus_p1y) + Math::asin(sin_alpha))
@@ -252,11 +252,11 @@ module Paidgeeks
         ttg = ttg_pca_angles(x1,y1,intercept_course,v1,x2,y2,tgt_course,v1)
       end
     else # delta v != 0
-      t_plus = 
+      t_plus =
         ( -b + Math::sqrt( b_squared_minus_4ac ) ) /
                     ( 2.0 * a )
-        
-      t_minus = 
+
+      t_minus =
         ( -b - Math::sqrt( b_squared_minus_4ac ) ) /
                     ( 2.0 * a )
 
@@ -276,7 +276,7 @@ module Paidgeeks
       intercept_course = normalize_to_circle(
         Math::atan2(p2x_minus_p1x + (v2x * ttg), p2y_minus_p1y + (v2y * ttg)))
     end # end else target and/or interceptor are moving
-    
+
     #
     # done
     #
