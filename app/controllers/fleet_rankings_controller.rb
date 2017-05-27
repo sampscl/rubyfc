@@ -1,0 +1,2 @@
+class FleetRankingsController < ApplicationController
+end

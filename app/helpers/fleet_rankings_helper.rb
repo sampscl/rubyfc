@@ -1,0 +1,2 @@
+module FleetRankingsHelper
+end

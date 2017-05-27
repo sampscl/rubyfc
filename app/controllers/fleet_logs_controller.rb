@@ -1,0 +1,2 @@
+class FleetLogsController < ApplicationController
+end
