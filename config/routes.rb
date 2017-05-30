@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  get 'home', to: 'home#index'
+
   resources :fleet_logs
   resources :missions
   resources :fleets

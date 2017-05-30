@@ -5,3 +5,5 @@ vendor/bundle
 db/*.sqlite3
 doc/*
 .DS_Store
+tmp/
+.rake_tasks~
