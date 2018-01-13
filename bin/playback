@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/ui/tcl'
+
+def main
+  Paidgeeks::RubyFC::UI::TkMain.new.run
+end
+
+if __FILE__ == $0
+  main
+end
