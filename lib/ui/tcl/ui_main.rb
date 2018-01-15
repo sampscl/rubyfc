@@ -26,17 +26,23 @@ module Paidgeeks
           return 0 if log_file.nil?
           begin
             root = TkRoot.new { title "Fleet Commander Playback - #{log_file_name}" }
-            fleets = TkListbox.new(root) { height 4 }
-            mobs = TkListbox.new(root) { height 25 }
-            log = TkListbox.new(root) { height 10 }
-            game_field = TkCanvas.new(root) { }
-            status = TkLabel.new(root) { }
+            lists_frame = TkFrame.new(root) { borderwidth 3 ; relief "flat" }
+            fleets = TkListbox.new(lists_frame) { height 4 }
+            mobs = TkListbox.new(lists_frame) { height 25 }
+            log = TkListbox.new(lists_frame) { height 10 }
+            game_field = TkCanvas.new(root) { width 1024 ; height 768 }
+            status_frame = TkFrame.new(root) { borderwidth 3 ; relief "flat" }
+            status = TkLabel.new(status_frame) { }
 
-            fleets.grid row: 0, column: 0
-            mobs.grid row: 1, column: 0
-            log.grid row: 2, column: 0
-            game_field.grid row: 0, column: 1, rowspan: 3
-            status.grid row: 3, column: 0, columnspan: 2
+            fleets.pack fill: "both", expand: 1
+            mobs.pack fill: "both", expand: 1
+            log.pack fill: "both", expand: 1
+
+            status.pack fill: "both", expand: 1
+
+            lists_frame.grid row: 0, column: 0, sticky: "nsew"
+            game_field.grid row: 0, column: 1, rowspan: 2, sticky: "nsew"
+            status_frame.grid row: 1, column: 0, columnspan: 2, sticky: "nsew"
 
             Tk.mainloop
           ensure
