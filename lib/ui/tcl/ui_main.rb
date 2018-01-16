@@ -86,7 +86,9 @@ module Paidgeeks
             # do nothing, init mission doesn't do anything for playback.
           when "game_config"
             # do nothing, game config doesn't do anything for playback.
-          when "begin_tick", "end_tick"
+          when "begin_tick"
+            # do nothing, the tick updates are handled within the tick_msg
+          when "end_tick"
             # do nothing, the tick updates are handled within the tick_msg
           when /_notify$/
             # do nothing, the notify messages do not affect game state
