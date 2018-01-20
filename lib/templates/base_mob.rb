@@ -65,6 +65,10 @@ module Paidgeeks
         def self.max_scan_range
           1500.0
         end
+
+        def self.png_file_path
+          nil # full path to the png file used to display this mob flying north or nil to use default
+        end
       end
     end
   end
