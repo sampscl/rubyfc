@@ -13,14 +13,12 @@ module Paidgeeks
         attr_accessor :gs
         attr_accessor :image_cache
 
-        def initialize(gs)
-          super
-          self.gs = gs
-          self.image_cache = ImageCache.new
-          setStyleSheet("background-color: black;")
-        end
         def initialize(gs, window)
-          super(window)
+          if(window)
+            super(window)
+          else
+            super()
+          end
           self.gs = gs
           self.image_cache = ImageCache.new
           setStyleSheet("background-color: black;")
@@ -45,7 +43,6 @@ module Paidgeeks
           painter.set_brush(brush)
 
           gs.tick_scan_reports.each do |sr|
-            $stdout.write("sr => #{sr}\n")
             sm = sr["scan_msg"]
 
             source_mob = gs.mobs[sm["source_ship"]]

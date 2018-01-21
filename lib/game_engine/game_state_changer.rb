@@ -14,7 +14,7 @@ module Paidgeeks
       #
       # Messages that are sent to fleets after being processed are
       # renamed to end with "_notify", and this is what forms 99% of the
-      # game-to-fleet API. 
+      # game-to-fleet API.
       #
       # Game coordinator will also send messages to the fleet that are not well-
       # defined in this file: game_config, begin_tick, and end_tick.
@@ -472,7 +472,7 @@ module Paidgeeks
                     "turn_start_time" => 0.0,
                     "turn_stop_time" => 0.0,
                     "turn_stop" => 0.0,
-                    "template" => mob.template.name,
+                    "template" => mob.template.kind_of?(String) ? mob.template : mob.template.name,
                     "fid" => mob.fid,
                   }
                 end # inside slice pair

@@ -38,8 +38,14 @@ module Paidgeeks
 
           if(log_file_name == "stdin")
             # stdin is a live playback, so no TiVo controls
-            self.playback_widget = Paidgeeks::RubyFC::UI::PlaybackWidget.new(gs)
+            self.playback_widget = Paidgeeks::RubyFC::UI::PlaybackWidget.new(gs, nil)
             playback_widget.resize(1280, 1024)
+
+            self.play_timer =  Qt::Timer.new(playback_widget)
+            play_timer.single_shot = false
+            play_timer.connect(:timeout, self, :live_mode_check)
+            play_timer.start(100)
+
             playback_widget.show
           else
             window = Qt::Widget.new
@@ -80,11 +86,9 @@ module Paidgeeks
         def run
           log_file, log_file_name =
             case ARGV[0]
-            when "-"
+            when "-", nil
+              $stdout.write("using stdin for log file input\n")
               [$stdin, "stdin"]
-            when nil
-              lfn = nil #Tk.getOpenFile
-              File.exist?(lfn) ? [File.open(lfn), lfn] : [nil, nil]
             else
               File.exist?(ARGV[0]) ? [File.open(ARGV[0]), ARGV[0]] : [nil, nil]
             end
@@ -98,26 +102,48 @@ module Paidgeeks
 
         end # run
 
+        # Tick reads the log file and processes messages until a tick message
+        # is processed. It updates the UI.
         def tick
           was_tick = false
           until(was_tick) do
             begin
-              msg = Paidgeeks.read_object(log_file, 1.0)
+              msg = Paidgeeks.read_object(log_file, 0.0)
               return if msg.nil?
               was_tick = (msg["type"] == "tick") ? true : false
               playback_widget.repaint if was_tick
               process_msg(msg)
             rescue StandardError => e
               $stderr.write("tick() error => (#{e.inspect})\n")
+              $stderr.write(e.backtrace.join("\n\tfrom: ") + "\n")
               if self.play_timer
                 play_timer.stop
-                toggle_play_button.disabled = false
-                stop_button.disabled = true
                 return
               end
             end
           end
         end # tick
+
+        def live_mode_check
+          msg_count = 0
+          begin
+            while msg_count < 100 do
+              msg = Paidgeeks.read_object(log_file, 0.010)
+              return if msg.nil?
+              was_tick = (msg["type"] == "tick") ? true : false
+              playback_widget.repaint if was_tick
+              process_msg(msg)
+              msg_count += 1
+            end
+          rescue StandardError => e
+            $stderr.write("live_mode_check() error => (#{e.inspect})\n")
+            $stderr.write(e.backtrace.join("\n\tfrom: ") + "\n")
+            if self.play_timer
+              play_timer.stop
+              return
+            end
+          end
+        end
 
         def toggle_play
           if play_timer.is_active()
@@ -130,7 +156,7 @@ module Paidgeeks
         end # toggle_play
 
         def process_msg(msg)
-          $stdout.write("processing #{msg.inspect}\n")
+          $stdout.write("#{msg}\n")
           case msg["type"]
           when "init_mission"
             # do nothing, init mission doesn't do anything for playback.
