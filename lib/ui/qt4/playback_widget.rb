@@ -18,6 +18,11 @@ module Paidgeeks
           super(window)
         end
 
+        def sizeHint
+          $stdout.write("size_hint\n")
+          Qt::Size.new(1280, 1024)
+        end
+
         def paintEvent(pe)
           painter = Qt::Painter.new(self)
 
