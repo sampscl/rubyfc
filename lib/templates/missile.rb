@@ -24,7 +24,7 @@ module Paidgeeks
         def self.credit_cost
           10
         end
-        
+
         def self.damage_caused
           1
         end
@@ -35,6 +35,10 @@ module Paidgeeks
 
         def self.max_scan_range
           150.0
+        end
+
+        def self.png_file_path
+          Pathname.new(File.join(File.expand_path('..', __FILE__), "..", "images", "missile.png")).realpath.to_s
         end
       end
     end

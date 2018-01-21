@@ -1,3 +1,4 @@
+require 'pathname'
 require_relative '../utilities/math_utils'
 module Paidgeeks
   module RubyFC

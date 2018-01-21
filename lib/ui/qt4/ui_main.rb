@@ -99,16 +99,22 @@ module Paidgeeks
         end # run
 
         def tick
-          begin
-            msg = Paidgeeks.read_object(log_file, 1.0)
-            process_msg(msg) if msg
-            playback_widget.update
-          rescue StandardError => e
-            $stderr.write("tick() error => (#{e.inspect})\n")
-            if self.play_timer
-              play_timer.stop
-              toggle_play_button.disabled = false
-              stop_button.disabled = true
+          was_tick = false
+          until(was_tick) do
+            begin
+              msg = Paidgeeks.read_object(log_file, 1.0)
+              return if msg.nil?
+              was_tick = (msg["type"] == "tick") ? true : false
+              playback_widget.repaint if was_tick
+              process_msg(msg)
+            rescue StandardError => e
+              $stderr.write("tick() error => (#{e.inspect})\n")
+              if self.play_timer
+                play_timer.stop
+                toggle_play_button.disabled = false
+                stop_button.disabled = true
+                return
+              end
             end
           end
         end # tick

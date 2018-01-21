@@ -5,6 +5,7 @@ module Paidgeeks
   TWOPI = 2.0*Math::PI
   TWOPI_OVER_360 = TWOPI/360.0
   TWOPI_UNDER_360 = 360.0/TWOPI
+  HALF_PI = Math::PI/2.0
 
   # convert degrees to radians
   def deg_to_rad(deg)

@@ -28,10 +28,15 @@ module Paidgeeks
         def self.credit_cost
           100
         end
-        
+
         def self.collision_size
           15.0
         end
+
+        def self.png_file_path
+          Pathname.new(File.join(File.expand_path('..', __FILE__), "..", "images", "fighter.png")).realpath.to_s
+        end
+
       end
     end
   end

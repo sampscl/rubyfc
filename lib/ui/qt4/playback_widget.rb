@@ -3,6 +3,7 @@ require 'bundler/setup'
 require 'Qt'
 
 require_relative 'image_cache'
+require_relative '../../utilities/math_utils'
 
 module Paidgeeks
   module RubyFC
@@ -13,14 +14,16 @@ module Paidgeeks
         attr_accessor :image_cache
 
         def initialize(gs)
+          super
           self.gs = gs
           self.image_cache = ImageCache.new
-          super
+          setStyleSheet("background-color: black;")
         end
         def initialize(gs, window)
+          super(window)
           self.gs = gs
           self.image_cache = ImageCache.new
-          super(window)
+          setStyleSheet("background-color: black;")
         end
 
         def sizeHint
@@ -31,14 +34,48 @@ module Paidgeeks
         def paintEvent(pe)
           painter = Qt::Painter.new(self)
 
-          painter.erase_rect(pe.rect)
-
           gs.mobs.each do |mid, mob|
             center_x, center_y = mob_pos_to_screen(mob)
-            img = image_cache.image_for_mob(mob)
+            img = apply_heading(mob, image_cache.image_for_mob(mob))
             point = Qt::PointF.new(center_x - (img.width / 2.0), center_y - (img.height / 2.0))
             painter.draw_image(point, img)
-            #painter.draw_text(point, "#{mob.fid}:#{mid} #{mob.template}")
+          end
+
+          brush = Qt::Brush.new(Qt::Color.new(225, 225, 225))
+          painter.set_brush(brush)
+
+          gs.tick_scan_reports.each do |sr|
+            $stdout.write("sr => #{sr}\n")
+            sm = sr["scan_msg"]
+
+            source_mob = gs.mobs[sm["source_ship"]]
+            start_x, start_y = mob_pos_to_screen(source_mob)
+
+            sm = sr["scan_msg"]
+            angle_radians = Paidgeeks.deg_to_rad(sm["azimuth"])
+            width_radians = Paidgeeks.deg_to_rad(sr["scan_width"])
+
+            ccw_radians = angle_radians - width_radians
+            cw_radians = angle_radians + width_radians
+
+            range = sm["range"]
+
+            ccw_x = start_x + range * Math.sin(ccw_radians)
+            ccw_y = start_y - range * Math.cos(ccw_radians)
+
+            ccw_vector = Qt::LineF.new(start_x + 0.0, start_y + 0.0, ccw_x, ccw_y)
+
+            cw_x = start_x + range * Math.sin(cw_radians)
+            cw_y = start_y - range * Math.cos(cw_radians)
+
+            cw_vector = Qt::LineF.new(start_x + 0.0, start_y + 0.0, cw_x, cw_y)
+
+            bridge_vector = Qt::LineF.new(ccw_x, ccw_y, cw_x, cw_y)
+
+            painter.draw_line(ccw_vector)
+            painter.draw_line(cw_vector)
+            painter.draw_line(bridge_vector)
+
           end
 
           painter.end
@@ -61,6 +98,10 @@ module Paidgeeks
 
           [screen_x, screen_y]
         end # mob_pos_to_screen
+
+        def apply_heading(mob, mob_image)
+          mob_image.transformed(Qt::Transform.new.rotate_radians(mob.heading))
+        end
 
       end
     end
