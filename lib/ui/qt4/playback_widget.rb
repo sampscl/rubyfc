@@ -2,20 +2,30 @@ require 'rubygems'
 require 'bundler/setup'
 require 'Qt'
 
+require_relative 'image_cache'
+
 module Paidgeeks
   module RubyFC
     module UI
       class PlaybackWidget < Qt::Frame
 
         attr_accessor :gs
+        attr_accessor :image_cache
 
         def initialize(gs)
           self.gs = gs
+          self.image_cache = ImageCache.new
           super
         end
         def initialize(gs, window)
           self.gs = gs
+          self.image_cache = ImageCache.new
           super(window)
+        end
+
+        def sizeHint
+          $stdout.write("size_hint\n")
+          Qt::Size.new(1280, 1024)
         end
 
         def paintEvent(pe)
@@ -25,8 +35,10 @@ module Paidgeeks
 
           gs.mobs.each do |mid, mob|
             center_x, center_y = mob_pos_to_screen(mob)
-            point = Qt::PointF.new(center_x, center_y)
-            painter.draw_text(point, "#{mob.fid}:#{mid} #{mob.template}")
+            img = image_cache.image_for_mob(mob)
+            point = Qt::PointF.new(center_x - (img.width / 2.0), center_y - (img.height / 2.0))
+            painter.draw_image(point, img)
+            #painter.draw_text(point, "#{mob.fid}:#{mid} #{mob.template}")
           end
 
           painter.end
