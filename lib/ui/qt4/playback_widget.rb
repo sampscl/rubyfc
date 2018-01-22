@@ -33,7 +33,7 @@ module Paidgeeks
           painter = Qt::Painter.new(self)
 
           gs.mobs.each do |mid, mob|
-            center_x, center_y = mob_pos_to_screen(mob)
+            center_x, center_y = game_pos_to_screen(mob.x_pos, mob.y_pos)
             img = apply_heading(mob, image_cache.image_for_mob(mob))
             point = Qt::PointF.new(center_x - (img.width / 2.0), center_y - (img.height / 2.0))
             painter.draw_image(point, img)
@@ -46,7 +46,7 @@ module Paidgeeks
             sm = sr["scan_msg"]
 
             source_mob = gs.mobs[sm["source_ship"]]
-            start_x, start_y = mob_pos_to_screen(source_mob)
+            start_x, start_y = game_pos_to_screen(source_mob.x_pos, source_mob.y_pos)
 
             sm = sr["scan_msg"]
             angle_radians = Paidgeeks.deg_to_rad(sm["azimuth"])
@@ -57,13 +57,17 @@ module Paidgeeks
 
             range = sm["range"]
 
-            ccw_x = start_x + range * Math.sin(ccw_radians)
-            ccw_y = start_y - range * Math.cos(ccw_radians)
+            ccw_game_x = source_mob.x_pos + (range * Math.sin(ccw_radians))
+            ccw_game_y = source_mob.y_pos + (range * Math.cos(ccw_radians))
+
+            ccw_x, ccw_y = game_pos_to_screen(ccw_game_x, ccw_game_y)
 
             ccw_vector = Qt::LineF.new(start_x + 0.0, start_y + 0.0, ccw_x, ccw_y)
 
-            cw_x = start_x + range * Math.sin(cw_radians)
-            cw_y = start_y - range * Math.cos(cw_radians)
+            cw_game_x = source_mob.x_pos + (range * Math.sin(cw_radians))
+            cw_game_y = source_mob.y_pos + (range * Math.cos(cw_radians))
+
+            cw_x, cw_y = game_pos_to_screen(cw_game_x, cw_game_y)
 
             cw_vector = Qt::LineF.new(start_x + 0.0, start_y + 0.0, cw_x, cw_y)
 
@@ -78,23 +82,23 @@ module Paidgeeks
           painter.end
         end # paintEvent
 
-        # Take a mob position and transform it to screen coordinates. The
+        # Take a game field position and transform it to screen coordinates. The
         # game state (gs) is needed to determine the playing field size. The
         # playing field (0,0) is at the lower left corner, whereas the display
         # (0,0) is in the upper left corner, so the Y coordinates are flipped
         # for display reasons.
         #
         # Returns: [screen_x, screen_y] (these are floats)
-        def mob_pos_to_screen(mob)
-          x_pct = mob.x_pos / gs.config[:field_width]
-          y_pct = 1.0 - mob.y_pos / gs.config[:field_height]
+        def game_pos_to_screen(x,y)
+          x_pct = x / gs.config[:field_width]
+          y_pct = 1.0 - y / gs.config[:field_height]
 
           screen_size = size()
           screen_x = x_pct * screen_size.width
           screen_y = y_pct * screen_size.height
 
           [screen_x, screen_y]
-        end # mob_pos_to_screen
+        end # game_pos_to_screen
 
         def apply_heading(mob, mob_image)
           mob_image.transformed(Qt::Transform.new.rotate_radians(mob.heading))

@@ -59,9 +59,9 @@ def main
 
     journal_file_name = File.join(Paidgeeks::RubyFC::LOG_DIR, opts[:game_log_file_name])
 
-    g = Game.create!()
-    opts[:fleets].each {|ff| FleetFile.create!(path: ff, game: g)}
-    Journal.create!(path: journal_file_name, game: g)
+    # g = Game.create!()
+    # opts[:fleets].each {|ff| FleetFile.create!(path: ff, game: g)}
+    # Journal.create!(path: journal_file_name, game: g)
 
     File.open(journal_file_name,"w+t") do |journal|
       opts[:journal] = journal
