@@ -12,6 +12,8 @@ module Paidgeeks
 
         attr_accessor :gs
         attr_accessor :image_cache
+        attr_accessor :painter
+        attr_accessor :white_brush
 
         def initialize(gs, window)
           if(window)
@@ -22,15 +24,18 @@ module Paidgeeks
           self.gs = gs
           self.image_cache = ImageCache.new
           setStyleSheet("background-color: black;")
+          self.painter = Qt::Painter.new
+          self.white_brush = Qt::Brush.new(Qt::Color.new(225, 225, 225))
         end
 
         def sizeHint
-          $stdout.write("size_hint\n")
           Qt::Size.new(1280, 1024)
         end
 
         def paintEvent(pe)
-          painter = Qt::Painter.new(self)
+
+          painter.begin(self)
+          painter.set_brush(white_brush)
 
           gs.mobs.each do |mid, mob|
             center_x, center_y = game_pos_to_screen(mob.x_pos, mob.y_pos)
@@ -38,9 +43,6 @@ module Paidgeeks
             point = Qt::PointF.new(center_x - (img.width / 2.0), center_y - (img.height / 2.0))
             painter.draw_image(point, img)
           end
-
-          brush = Qt::Brush.new(Qt::Color.new(225, 225, 225))
-          painter.set_brush(brush)
 
           gs.tick_scan_reports.each do |sr|
             sm = sr["scan_msg"]

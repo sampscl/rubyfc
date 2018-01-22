@@ -125,10 +125,11 @@ module Paidgeeks
         end # tick
 
         def live_mode_check
+          # TODO: this code slows down over time when a log file is cat to stdin
           msg_count = 0
           begin
-            while msg_count < 100 do
-              msg = Paidgeeks.read_object(log_file, 0.010)
+            while msg_count < 1000 do
+              msg = Paidgeeks.read_object(log_file, 0.0)
               return if msg.nil?
               was_tick = (msg["type"] == "tick") ? true : false
               playback_widget.repaint if was_tick
