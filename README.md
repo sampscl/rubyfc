@@ -100,7 +100,7 @@ cat log/game.log | bin/playback
 ## Debugging Your Fleet
 This is, without a doubt, the thing you will spend the most time doing.
 Programming, like hacking, looks sexy on TV and in the movies, but the reality
-is far less entertaining.
+is far less entertaining to watch. Still really fun to do, though.
 
 Note: The playback tool, while very useful for visualizing a game, is not integrated
 with debug-aifc-game or aifc-game. That feature is coming.
