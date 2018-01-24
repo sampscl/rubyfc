@@ -40,6 +40,11 @@ module Paidgeeks
         def self.collision_size
           24.0
         end
+
+        def self.png_file_path
+          Pathname.new(File.join(File.expand_path('..', __FILE__), "..", "images", "cruiser.png")).realpath.to_s
+        end
+
       end
     end
   end

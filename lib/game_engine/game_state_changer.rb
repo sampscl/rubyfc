@@ -6,12 +6,20 @@ module Paidgeeks
     module Engine
 
       # The game state changer processes all messages that affect the game state. It
-      # is what implements the memoization that allows game playback. As such, the 
+      # is what implements the memoization that allows game playback. As such, the
       # methods in this class form the official internal game API and the game-to-fleet
-      # API. Note that messages that are sent to fleets after being processed are 
-      # renamed to end with "_notify", and this is what forms the game-to-fleet API. 
+      # API. See the notes below.
       #
-      # Please note that the GameStateChanger class is, itself STATELESS. Keep it 
+      # Notes:
+      #
+      # Messages that are sent to fleets after being processed are
+      # renamed to end with "_notify", and this is what forms 99% of the
+      # game-to-fleet API.
+      #
+      # Game coordinator will also send messages to the fleet that are not well-
+      # defined in this file: game_config, begin_tick, and end_tick.
+      #
+      # Please note that the GameStateChanger class is, itself STATELESS. Keep it
       # that way. Also, note that GameStateChanger trusts its input. Callers are
       # responsible for ensuring that all messages are actionable as-is.
       class GameStateChanger
@@ -24,7 +32,7 @@ module Paidgeeks
           fm.queue_output(Paidgeeks.encode(msg))
         end
 
-        # Send a warning message to a fleet. This is not really a game state change, 
+        # Send a warning message to a fleet. This is not really a game state change,
         # but it will generate a fleet message. It's basically syntactic sugar for
         # msg_to_fleet. Note the name does not end in _msg, so this method will
         # NOT be journaled (but msg_to_fleet will, due to the logging aspect).
@@ -68,9 +76,9 @@ module Paidgeeks
 
         # Set fleet metatdata (from the fleet itself)
         # Parameters:
-        # - msg => A Hash: { 
-        #     "type" => "set_fleet_metadata", 
-        #     "author" => "Author's name", 
+        # - msg => A Hash: {
+        #     "type" => "set_fleet_metadata",
+        #     "author" => "Author's name",
         #     "fleet_name" => "Name of the fleet",
         #     "fid" => fid,
         #     "fleet_source" => false | true,
@@ -148,12 +156,12 @@ module Paidgeeks
         # (and complicating scanning logic), motion is not wrapped around a-la pacman. Instead, mobs will
         # just stop at the barrier created by the boundary.
         #
-        # Also, note that the msg parameter is modified directly by this function. This is not 
+        # Also, note that the msg parameter is modified directly by this function. This is not
         # typical behavor for the gsc, since it normally will trust any input. In this case, it
         # does not trust the positional data (x and y position). This is due to the Mob class
         # being playing-field agnostic but the game needs to enforce the rules somewhere. The other
         # sensible option would be to create a rules enforcement class that proxies access to the
-        # game state changer and therefore ensures that all the rules are being followed. That 
+        # game state changer and therefore ensures that all the rules are being followed. That
         # feels like overkill at this point.
         #
         # This will generate a _notify message to the fleet.
@@ -215,7 +223,7 @@ module Paidgeeks
           mob
         end
 
-        # Report results of mission. This not really a game state change, but 
+        # Report results of mission. This not really a game state change, but
         # it does need to be recorded and run through the same general processing
         # as every other message.
         def self.mission_report_msg(gs, msg)
@@ -289,7 +297,7 @@ module Paidgeeks
         # Parameters:
         # - msg => A Hash: {
         #     "type" => "set_energy",
-        #     "new_energy" => Amount of energy 
+        #     "new_energy" => Amount of energy
         #     "mid" => mob id
         #     "fleet_source" => false | true,
         #   }
@@ -355,7 +363,7 @@ module Paidgeeks
         end
 
         # Notify fleet one if its munitions intercepted something, this doesn't really change the gamestate,
-        # but it does follow the *_notify pattern for fleet notification for interesting events. It also 
+        # but it does follow the *_notify pattern for fleet notification for interesting events. It also
         # notifies the mission that someone scored a hit.
         #
         # This will generate a _notify message to the fleet.
@@ -408,7 +416,7 @@ module Paidgeeks
         # - msg => A Hash: {
         #     "type" => "reduce_hitpoints",
         #     "mid" => mid of the mob to modify
-        #     "amount" => number of hitpoints to subtract, set to negative to increase hitpoints  
+        #     "amount" => number of hitpoints to subtract, set to negative to increase hitpoints
         #     "fleet_source" => false | true,
         #   }
         def self.reduce_hitpoints_msg(gs, msg)
@@ -464,7 +472,7 @@ module Paidgeeks
                     "turn_start_time" => 0.0,
                     "turn_stop_time" => 0.0,
                     "turn_stop" => 0.0,
-                    "template" => mob.template.name,
+                    "template" => mob.template.kind_of?(String) ? mob.template : mob.template.name,
                     "fid" => mob.fid,
                   }
                 end # inside slice pair
@@ -504,7 +512,7 @@ module Paidgeeks
         #   }
         def self.set_speed_msg(gs, msg)
           mob = gs.mobs[msg["mid"]]
-          mob.velocity = msg["speed"]          
+          mob.velocity = msg["speed"]
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "set_speed_notify"}))
         end

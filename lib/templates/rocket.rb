@@ -31,14 +31,19 @@ module Paidgeeks
         def self.can_scan
           false
         end
-        
+
         def self.munition?
           true
         end
-        
+
         def self.max_scan_range
           0.0
         end
+
+        def self.png_file_path
+          Pathname.new(File.join(File.expand_path('..', __FILE__), "..", "images", "rocket.png")).realpath.to_s
+        end
+
       end
     end
   end

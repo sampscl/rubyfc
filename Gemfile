@@ -42,6 +42,8 @@ gem 'aspector'
 gem 'concurrent-ruby'
 gem 'concurrent-ruby-ext'
 gem 'facter'
+#gem 'tk'
+gem 'qtbindings', '~>4.8'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

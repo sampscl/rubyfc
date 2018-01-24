@@ -34,6 +34,7 @@ Tempfile.open("rubyfc-debug-log") do |debug_log|
 
   # monkey patch run_game
   def run_game(gc)
+    $gc = gc # make easily available to pry
     Paidgeeks::DebugUtils.debug(gc)
   end
 

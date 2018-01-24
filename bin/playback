@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
-require_relative '../lib/ui/tcl'
+require_relative '../lib/ui/qt4/ui_main'
 
 def main
-  Paidgeeks::RubyFC::UI::TkMain.new.run
+  Paidgeeks::RubyFC::UI::Qt4Main.new.run
 end
 
 if __FILE__ == $0
