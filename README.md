@@ -14,20 +14,20 @@ stored in lib/images is copyrighted by Devon Ellis (I think) and is made
 available from Source Forge under the GPL V2 license.
 
 ## Additional Documentation
-0. [TODO](doc/todo.md)
-0. [Fleet API](doc/fleet_api.md)
-0. [Debugging Deep Dive](doc/debugging_deep.md)
-0. [Making A New Mission](doc/making_a_mission.md)
+1. [TODO](doc/todo.md)
+1. [Fleet API](doc/fleet_api.md)
+1. [Debugging Deep Dive](doc/debugging_deep.md)
+1. [Making A New Mission](doc/making_a_mission.md)
 
 ## Prerequisites
 1. A development environment; I use Linux, Atom, bash, and git with git-flow
-2.  Ruby, some new-ish version (I'm on 2.3)
-3. Qt4 (only if you want the *optional* UI), on Ubuntu: `sudo apt install qt4-default`
-4. I have had no real luck getting this to run on MacOS and I haven't tried
+1.  Ruby, some new-ish version (I'm on 2.3)
+1. Qt4 (only if you want the *optional* UI), on Ubuntu: `sudo apt install qt4-default`
+1. I have had no real luck getting this to run on MacOS and I haven't tried
 Windows; you might be stuck with Linux
-5. A really strong desire to play this game or contribute, it is very immature
+1. A really strong desire to play this game or contribute, it is very immature
 and liable to break in surprising ways
-6. Globally-installed `pry` gem; you don't have to have this, but it makes
+1. Globally-installed `pry` gem; you don't have to have this, but it makes
 debugging your fleets much easier. Use `sudo gem install --no-user --nodoc pry`
 
 ## Getting Started
