@@ -15,7 +15,6 @@ available from Source Forge under the GPL V2 license.
 
 ## Additional Documentation
 1. [TODO](doc/todo.md)
-1. [Fleet API](doc/fleet_api.md)
 1. [Debugging Deep Dive](doc/debugging_deep.md)
 1. [Making A New Mission](doc/making_a_mission.md)
 
@@ -134,3 +133,27 @@ So, things you can do in a debugging session:
 * open a `pry` session; $gc is a global is accessible here, and contains the
 game coordinator with which you can inspect almost everything.
 * tick the game any number of game ticks at a time
+
+## The Fleet API
+There are 2 APIs to know. The fleet-to-game API is how you tell the game about
+what your fleet of ships is doing. Concepts like "turn left to face West" and
+"Fire a missile at that ship" are implemented in this API. The game-to-fleet API
+is how the game tells you about game events like "your ship just took damage
+from an enemy missile" and "you don't have enough credits to build that ship".
+
+These APIs are documented in the code using [YARD](https://yardoc.org). The
+easiest way to access the documentation is to run a local yard server. Assuming
+you have installed yard globally as a gem as recommended in the README.md's
+prerequisites section:
+
+```bash
+cd rubyfc # or wherever you cloned rubyfc
+yard doc # makes sure the docs are up to date, not generally necessary
+yard server # run the server
+```
+
+At this point, just run your favorite web browser and point it at
+(http://localhost:8808/). The game-to-fleet API is decribed in
+(http://localhost:8808/docs/Paidgeeks/RubyFC/Engine/GameStateChanger). The
+fleet-to-game API is described in
+(http://localhost:8808/docs/Paidgeeks/RubyFC/Engine/FleetMessageHandler).
