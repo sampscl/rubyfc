@@ -29,6 +29,8 @@ Windows; you might be stuck with Linux
 and liable to break in surprising ways
 1. Globally-installed `pry` gem; you don't have to have this, but it makes
 debugging your fleets much easier. Use `sudo gem install --no-user --nodoc pry`
+1. Globally-installed `YARD` for easy access to the APIs. Use
+`sudo gem install --no-user yard`
 
 ## Getting Started
 
