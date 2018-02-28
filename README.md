@@ -13,6 +13,12 @@ Ruby Fleet Commander is published under the MIT license. The original artwork
 stored in lib/images is copyrighted by Devon Ellis (I think) and is made
 available from Source Forge under the GPL V2 license.
 
+## Additional Documentation
+0. [TODO](doc/todo.md)
+0. [Fleet API](doc/fleet_api.md)
+0. [Debugging Deep Dive](doc/debugging_deep.md)
+0. [Making A New Mission](doc/making_a_mission.md)
+
 ## Prerequisites
 1. A development environment; I use Linux, Atom, bash, and git with git-flow
 2.  Ruby, some new-ish version (I'm on 2.3)
@@ -71,7 +77,7 @@ to get anything done...
 * `--fleet lib/examples/sit_n_scan.rb` adds a fleet to the game; remember that
 we are making this program fight itself and so you see the same fleet added twice
 * `--log_file game.log` RubyFC works on a pure message-passing system. Every action
-the game engine takes is represented by a message (encoded as base 64 encoded
+the game engine takes is represented by a message (stored as base 64 encoded
 JSON) stored one message per line.
 * `--mission Paidgeeks::RubyFC::Missions::Deathmatch` We will be running the
 Deathmatch mission; last fleet standing wins
@@ -121,12 +127,8 @@ Extra credit: check out `bin/debug-aifc-game`. See that aspect being applied to
 `Paidgeeks::write_object`? Dig deep, figure out how that works, and you will be
 a rubyfc debugging master.
 
-## TODO
-More than I can possibly think of, but a short list:
-
-1. Write missions and support infrastructure to enable a single player campaign
-2. Write more KOTH-type missions; deathmatch doesn't cut it
-3. Implement the ladder system, logins, and the associated web interface
-4. Consume zip files instead of single ruby scripts for fleet AI
-5. Do something to enforce security
-6. Improve this readme so that it's more useful to the uninitiated
+So, things you can do in a debugging session:
+* open terminal windows to tail the game and fleet(s) log files
+* open a `pry` session; $gc is a global is accessible here, and contains the
+game coordinator with which you can inspect almost everything.
+* tick the game any number of game ticks at a time
