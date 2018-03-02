@@ -3,7 +3,7 @@ module Paidgeeks
   module RubyFC
     module Templates
       class Cruiser < BaseMob
-        @@my_turn_rate = Paidgeeks.deg_to_rad(5.0)
+        @@my_turn_rate = Paidgeeks.deg_to_rad(15.0)
 
         def self.max_turn_rate
           @@my_turn_rate

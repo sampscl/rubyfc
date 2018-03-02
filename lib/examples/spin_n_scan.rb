@@ -4,7 +4,7 @@
 # messages with RubyFC. We'll just use those here.
 require_relative '../utilities/stream_comms'
 
-# useful: Paidgeeks module has handy methods for doing math. We'll 
+# useful: Paidgeeks module has handy methods for doing math. We'll
 # just use those here
 require_relative '../utilities/math_utils'
 
@@ -58,7 +58,7 @@ def process(msg)
   when "create_mob_notify" # new mob of mine, fly in a circle
     log(msg)
     $mid = msg["mid"]
-    send({"type" => "turn_forever", "mid" => msg["mid"], "rate" => 3.0, "direction" => "clockwise"})
+    send({"type" => "turn_forever", "mid" => msg["mid"], "rate" => 15.0, "direction" => "clockwise"})
   when "scan_report"
     log(msg) if not msg["reports"].empty?
   else # this is a message that we don't handle yet, just log it
@@ -66,7 +66,7 @@ def process(msg)
   end
 end
 
-# This is the program entry point. Because of the __FILE_ trick below, 
+# This is the program entry point. Because of the __FILE_ trick below,
 # this will only be executed if the script is run as as "program" from
 # the command line. Which happens to be *exactly* what RubyFC does
 # when you give it a fleet file name.
@@ -81,11 +81,11 @@ def main
 
   # Keep going forever, RubyFC will clean up the fleets automagically
   loop do
-    # Read a message. Use a timeout of 1 second to 
+    # Read a message. Use a timeout of 1 second to
     # be a good player and not try to eat all the
     # available CPU time by spinning in a loop.
     msg = Paidgeeks.read_object($stdin, 1)
-    
+
     # If we did not get a message, loop again
     next if msg.nil?
 
