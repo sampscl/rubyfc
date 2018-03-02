@@ -52,7 +52,6 @@ end
 def main
   opts = parse_command_line
   if not opts[:just_show_transcript]
-
     gc = Paidgeeks::RubyFC::Engine::GameCoordinator.new
 
     FileUtils.mkdir_p(Paidgeeks::RubyFC::LOG_DIR) if not Dir.exist?(Paidgeeks::RubyFC::LOG_DIR)
@@ -63,37 +62,36 @@ def main
     # opts[:fleets].each {|ff| FleetFile.create!(path: ff, game: g)}
     # Journal.create!(path: journal_file_name, game: g)
 
-    File.open(journal_file_name,"w+t") do |journal|
-      opts[:journal] = journal
+    journal = opts[:game_log_file_name] == "-" ? $stdout : File.open(journal_file_name,"w+t")
+    opts[:journal] = journal
 
-      gc.game_setup(opts)
+    gc.game_setup(opts)
 
-      run_game(gc)
+    run_game(gc)
 
-      report = gc.gs.mission.mission_report(gc.gs)
+    report = gc.gs.mission.mission_report(gc.gs)
 
-      Paidgeeks::RubyFC::Engine::GameStateChanger::mission_report_msg(gc.gs, {
-        "type" => "mission_report",
-        "report" => report,
-        "fleet_source" => false,
-        })
+    Paidgeeks::RubyFC::Engine::GameStateChanger::mission_report_msg(gc.gs, {
+      "type" => "mission_report",
+      "report" => report,
+      "fleet_source" => false,
+      })
 
-      puts("Mission report: #{report.inspect}")
+    $stderr.write("Mission report: #{report.inspect}\n")
 
-      gc.cleanup
-    end # File.open journal
+    gc.cleanup
   else
     Paidgeeks::RubyFC::Engine::Transcript::playback_until(opts) { SIGNAL_QUEUE.any? }
   end
 end
 
 def run_game(gc)
-  puts("Game start at #{Time.now}")
+  $stderr.write("Game start at #{Time.now}\n")
   last_time = gc.gs.time
   while !SIGNAL_QUEUE.any? and :in_progress == gc.game_tick(last_time)
     last_time = gc.gs.time
   end
-  puts("Game finish at #{Time.now}")
+  $stderr.write("Game finish at #{Time.now}\n")
 end
 
 if __FILE__ == $0
