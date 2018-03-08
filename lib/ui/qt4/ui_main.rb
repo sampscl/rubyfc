@@ -111,7 +111,10 @@ module Paidgeeks
               msg = Paidgeeks.read_object(log_file, 0.0)
               return if msg.nil?
               was_tick = (msg["type"] == "tick") ? true : false
-              playback_widget.repaint if was_tick
+              if was_tick
+                playback_widget.repaint
+                self.gs.fleets.each {|_fid, fleet| fleet[:manager].flush_output }
+              end
               process_msg(msg)
             rescue StandardError => e
               $stderr.write("tick() error => (#{e.inspect})\n")
@@ -130,7 +133,10 @@ module Paidgeeks
             while msg_count < 1000 do
               msg = Paidgeeks.read_object(log_file, 0.0)
               return if msg.nil?
-              playback_widget.repaint if msg["type"] == "tick"
+              if msg["type"] == "tick"
+                playback_widget.repaint
+                self.gs.fleets.each {|_fid, fleet| fleet[:manager].flush_output }
+              end
               process_msg(msg)
               msg_count += 1
             end
@@ -168,9 +174,10 @@ module Paidgeeks
           when /_notify$/
             # do nothing, the notify messages do not affect game state
           when "add_fleet"
-            # we do not want a real fleet here
-            new_ff = File.expand_path("../../utilities/null_fleet.rb", __FILE__)
+            # we do not want a real fleet or a real log stream here
+            new_ff = File.expand_path("../../../utilities/null_fleet.rb", __FILE__)
             msg["ff"] = new_ff
+            msg["log_stream"] = self.dev_null
             self.gsc.send("#{msg["type"]}_msg".to_sym, self.gs, msg)
           when "scan_report"
             # do nothing, scan reports don't do anything for playback
