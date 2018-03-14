@@ -3,36 +3,36 @@ require_relative 'math_utils'
 module Paidgeeks
   module RubyFC
     class Mob
-      attr_accessor :x_pos, 
-      :y_pos, 
-      :heading, 
-      :velocity, 
+      attr_accessor :x_pos,
+      :y_pos,
+      :heading,
+      :velocity,
       :turn_rate,
       :valid_time,
-      :turn_start_time, 
+      :turn_start_time,
       :turn_stop_time, # time to stop turning
       :turn_stop, # heading (radians)
       :template,
       :create_time,
-      :mid, 
+      :mid,
       :fid,
       :energy,
       :hitpoints,
       :last_scan_tick,
       :target_mid,
       :launch_param
-      
-      KINEMATIC_ATTRS = ["x_pos", "y_pos", "heading", 
-                         "velocity", "turn_rate", "valid_time", 
+
+      KINEMATIC_ATTRS = ["x_pos", "y_pos", "heading",
+                         "velocity", "turn_rate", "valid_time",
                          "turn_start_time", "turn_stop_time", "turn_stop"]
       IDENTIFIER_ATTRS = ["mid", "fid"]
       METADATA_ATTRS = ["template", "create_time"]
       MUNITION_ATTRS = ["target_mid"]
       OTHER_ATTRS = ["energy", "hitpoints", "last_scan_tick", "launch_param"]
 
-      ALL_ATTRS = KINEMATIC_ATTRS + 
-        IDENTIFIER_ATTRS + 
-        METADATA_ATTRS + 
+      ALL_ATTRS = KINEMATIC_ATTRS +
+        IDENTIFIER_ATTRS +
+        METADATA_ATTRS +
         MUNITION_ATTRS +
         OTHER_ATTRS
 

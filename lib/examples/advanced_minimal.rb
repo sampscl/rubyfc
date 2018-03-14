@@ -1,13 +1,21 @@
 #!/usr/bin/env ruby
 
+require 'pp' # for pretty_inspect
+
 # useful: Paidgeeks module has handy methods for encoding and decoding
 # messages with RubyFC. We'll just use those here.
 require_relative '../utilities/stream_comms'
 
+# really useful math utilities
+require_relative '../utilities/math_utils'
+
+# mob class used to store mobs
+require_relative '../utilities/mob'
+
 # Convenience function to send a message Hash to RubyFC, the
 # flush is important to make sure that the game receives messages
 # in a timely manner.
-def send(msg)
+def send_msg(msg)
   Paidgeeks.write_object($stdout, msg)
   $stdout.flush
 end
@@ -29,12 +37,14 @@ class Cruiser
     # "range" => game_units, gunship inherits default scan range of 1500.0
     # }
   attr_accessor :enemies # {mid: mob, ...}
-  attr_accessor :mid # my gunship
+  attr_accessor :mob # my gunship
+  attr_accessor :waypoints # [{x: x, y: y}, ...]
+
   def initialize
     range_for_30_degree_scan = 143.0 # 30 degrees to radians = area / range; solve for range
     range_for_3_degree_scan = 1043.0 # 30 degrees to radians = area / range; solve for range
     self.enemies = {}
-    self.mid = nil
+    self.mob = nil
     self.scan_plan = [ # scans always cover 75 square units on a 3600 x 2400 playing field (config.yml)
       { "type" => "scan", "source_ship" => 0, "azimuth" => 15.0,"range" => range_for_30_degree_scan }, # 0 - 30
       { "type" => "scan", "source_ship" => 0, "azimuth" => 45.0,"range" => range_for_30_degree_scan }, # 30 - 60
@@ -50,6 +60,12 @@ class Cruiser
       { "type" => "scan", "source_ship" => 0, "azimuth" => 345.0,"range" => range_for_30_degree_scan }, # 330 - 360
     ]
     (1..120).each { |i| self.scan_plan << { "type" => "scan", "source_ship" => 0, "azimuth" => i * 3.0, "range" => range_for_3_degree_scan } }
+    self.waypoints = [
+      { x: 100, y: 2300},
+      { x: 3500, y: 2300},
+      { x: 3500, y: 100},
+      { x: 100, y: 100},
+    ]
   end
 
   # Process messages received from the game
@@ -59,27 +75,53 @@ class Cruiser
   def process(msg)
     case msg["type"] # all messages have a "type" field
     when "begin_tick" # beginning of a game tick
-      send(self.scan_plan.first)
-      self.scan_plan.rotate!
+      send_msg(scan_plan.first)
+      scan_plan.rotate!
     when "end_tick" # end of a game tick
-      send({"type" => "tick_acknowledged", "tick" => msg["tick"]})
-      process_engagements()
-      log(self.enemies.pretty_inspect)
+      send_msg({"type" => "tick_acknowledged", "tick" => msg["tick"]})
+      #process_engagements()
+      #log(enemies.pretty_inspect)
     when "munition_intercept_notify"
       if msg["remaining_target_hitpoints"] <= 0
-        self.enemies.delete(msg["target_mid"])
+        enemies.delete(msg["target_mid"])
       end
     when "create_mob_notify" # new mob of mine, fly in a circle
       log(msg)
-      if self.mid.nil?
-        self.mid = msg["mid"]
-        self.scan_plan.each { |sp| sp["source_ship"] = self.mid }
+      if mob.nil?
+        self.mob = Paidgeeks::RubyFC::Mob.from_msg(msg)
+        mid = msg["mid"]
+        scan_plan.each { |sp| sp["source_ship"] = mid } # update scan plan with my mob id
+      end
+    when "integrate_mob_notify"
+      if self.mob && self.mob.mid = msg["mid"]
+        self.mob = Paidgeeks::RubyFC::Mob.from_msg(msg)
+        process_waypoints(msg)
       end
     when "scan_report"
-      msg["reports"].each { |report| self.enemies[report["mid"]] = report }
+      msg["reports"].each { |report| enemies[report["mid"]] = report }
     else # this is a message that we don't handle yet, just log it
       #log("Got message that I don't handle: #{msg.inspect}")
     end
+  end
+
+  def process_engagements
+  end
+
+  def process_waypoints(integrate_msg)
+    wpt = waypoints.first
+    rng2 = Paidgeeks::range2(mob.x_pos, mob.y_pos, wpt[:x], wpt[:y])
+    if(rng2 < (100 * 100))
+      # reached waypoint, go to next
+      waypoints.rotate!
+      wpt = waypoints.first
+    end
+    new_hdg_rad = Paidgeeks::normalize_to_circle(Paidgeeks::relative_angle(mob.x_pos, mob.y_pos, wpt[:x], wpt[:y]))
+    send_msg({
+      "type" => "turn_to",
+      "mid" => mob.mid,
+      "heading" => Paidgeeks.rad_to_deg(new_hdg_rad),
+      "direction" => Paidgeeks.shortest_turn(mob.heading, new_hdg_rad)
+      })
   end
 end # class Cruiser
 
@@ -90,7 +132,7 @@ end # class Cruiser
 def main
 
   # always write your fleet metadata first
-  send({
+  send_msg({
       "type"       => "set_fleet_metadata",
       "author"     => "Clay Sampson",
       "fleet_name" => "Advanced Minimal Example 1.0",

@@ -101,8 +101,19 @@ Want extra cool? Of course you do. The playback tool can zip through your game
 at light speed (CPU-defined speed of said light):
 
 ```bash
-cat log/game.log | bin/playback
+cat log/game.log | bin/bundle exec bin/playback
 ```
+
+Tying it all together, you can watch a game play live. too:
+
+```bash
+cd rubyfc # or wherever you cloned rubyfc
+bin/bundle exec bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file - --mission Paidgeeks::RubyFC::Missions::Deathmatch | tee log/game.log | bin/bundle exec bin/playback
+```
+
+Note that the game log is set to "-", which is shorthand for "log to the
+terminal". This is passed through the tee program and simultaneously sent to
+log/game.log and to the playback GUI.
 
 ## Debugging Your Fleet
 This is, without a doubt, the thing you will spend the most time doing.

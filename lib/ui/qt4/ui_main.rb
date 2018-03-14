@@ -169,6 +169,8 @@ module Paidgeeks
             # do nothing, game config doesn't do anything for playback.
           when "begin_tick"
             # do nothing, the tick updates are handled within the tick_msg
+          when "warn_fleet"
+            # do nothing, the warn fleet message doesn't do anything for playback
           when "end_tick"
             # do nothing, the tick updates are handled within the tick_msg
           when /_notify$/
