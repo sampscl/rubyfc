@@ -108,6 +108,7 @@ class Cruiser
   end
 
   def process_waypoints(integrate_msg)
+    # am I close to my next waypoint?
     wpt = waypoints.first
     rng2 = Paidgeeks::range2(mob.x_pos, mob.y_pos, wpt[:x], wpt[:y])
     if(rng2 < (100 * 100))
@@ -115,13 +116,19 @@ class Cruiser
       waypoints.rotate!
       wpt = waypoints.first
     end
+
+    # get heading I should use to reach next waypoint
     new_hdg_rad = Paidgeeks::normalize_to_circle(Paidgeeks::relative_angle(mob.x_pos, mob.y_pos, wpt[:x], wpt[:y]))
-    send_msg({
-      "type" => "turn_to",
-      "mid" => mob.mid,
-      "heading" => Paidgeeks.rad_to_deg(new_hdg_rad),
-      "direction" => Paidgeeks.shortest_turn(mob.heading, new_hdg_rad)
-      })
+
+    # do I need to turn to get there?
+    if !Paidgeeks::is_near(new_hdg_rad, mob.heading)
+      send_msg({
+        "type" => "turn_to",
+        "mid" => mob.mid,
+        "heading" => Paidgeeks.rad_to_deg(new_hdg_rad),
+        "direction" => Paidgeeks.shortest_turn(mob.heading, new_hdg_rad)
+        })
+    end
   end
 end # class Cruiser
 
