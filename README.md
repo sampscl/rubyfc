@@ -14,9 +14,9 @@ stored in lib/images is copyrighted by Devon Ellis (I think) and is made
 available from Source Forge under the GPL V2 license.
 
 ## Additional Documentation
-1. [TODO](doc/todo.md)
-1. [Debugging Deep Dive](doc/debugging_deep.md)
-1. [Making A New Mission](doc/making_a_mission.md)
+1. [TODO](md/todo.md)
+1. [Debugging Deep Dive](md/debugging_deep.md)
+1. [Making A New Mission](md/making_a_mission.md)
 
 ## Prerequisites
 1. A development environment; I use Linux, Atom, bash, and git with git-flow
