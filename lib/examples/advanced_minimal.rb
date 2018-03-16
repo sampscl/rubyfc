@@ -60,7 +60,7 @@ class Fleet
       end
 
     when "scan_report"
-      msg["reports"].each { |report| enemies[report["mid"]] = report }
+      msg["reports"].each { |report| enemies[report["mid"]] = Paidgeeks::RubyFC::Mob.from_msg(report) }
 
     when "warn_fleet"
       Fleet.log(msg)
@@ -119,7 +119,7 @@ class Cruiser
       process_engagements(fleet)
 
     when "integrate_mob_notify"
-      if self.mob && self.mob.mid = msg["mid"]
+      if self.mob && self.mob.mid == msg["mid"]
         self.mob = Paidgeeks::RubyFC::Mob.from_msg(msg)
         process_waypoints(fleet, msg)
       end
@@ -127,6 +127,24 @@ class Cruiser
   end
 
   def process_engagements(fleet)
+    shadow = Paidgeeks::RubyFC::Mob.copy(mob)
+    shadow.velocity = 200.0 # max rocket speed
+    fleet.enemies.each_value do |enemy|
+      if enemy.template == "Paidgeeks::RubyFC::Templates::Gunship"
+        possible, course_rad, ttg = Paidgeeks::calc_intercept_mobs(shadow, enemy)
+        if possible
+          Fleet.log("Launching rocket at #{enemy.pretty_inspect}")
+          Fleet.send_msg({
+            "type" => "fire",
+            "munition_type" => "Paidgeeks::RubyFC::Templates::Rocket",
+            "munition_heading" => Paidgeeks::rad_to_deg(course_rad),
+            "source_ship" => mob.mid,
+            "target" => enemy.mid,
+            "launch_param" => "nick-knack-paddy-whack-give-a-dog-a-bone"
+            })
+        end
+      end
+    end
   end
 
   def process_waypoints(fleet, integrate_msg)
