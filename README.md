@@ -104,7 +104,8 @@ at light speed (CPU-defined speed of said light):
 cat log/game.log | bin/bundle exec bin/playback
 ```
 
-Tying it all together, you can watch a game play live. too:
+Tying it all together, you can watch a game play live. too. This will run and
+display the game as fast as your computer can do it:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
@@ -114,6 +115,15 @@ bin/bundle exec bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/exa
 Note that the game log is set to "-", which is shorthand for "log to the
 terminal". This is passed through the tee program and simultaneously sent to
 log/game.log and to the playback GUI.
+
+Finally. you can also view a transcript of a game. The log files are stored as
+base64-encoded JSON, but the game can unpack that for you. Pipe it through the
+`less` program for easy traversal and search:
+
+```bash
+cd rubyfc # or wherever you cloned rubyfc
+bin/bundle exec bin/aifc-game --just-show-transcript --log_file game.log | less
+```
 
 ## Debugging Your Fleet
 This is, without a doubt, the thing you will spend the most time doing.
