@@ -206,7 +206,7 @@ module Paidgeeks
           end
         end
 
-        # Update fleets' state; if it has no mobs, the fleet is dead
+        # Update fleets states; if it has no mobs, the fleet is dead
         def update_fleet_states()
           fid_count = {}
           gs.mobs.each_value do |mob|
@@ -216,6 +216,8 @@ module Paidgeeks
           msgs_to_send = []
           gs.fleets.each do |fid, _fleet|
             if fid_count[fid].nil? || fid_count[fid] == 0
+              # batch the messages because each messages changes the gamestate
+              # that we are currently iterating over
               msgs_to_send << {
                 "type" => "fleet_state",
                 "fid" => fid,

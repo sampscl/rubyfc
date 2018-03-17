@@ -21,7 +21,7 @@ available from Source Forge under the GPL V2 license.
 ## Prerequisites
 1. A development environment; I use Linux, Atom, bash, and git with git-flow
 1.  Ruby, some new-ish version (I'm on 2.3)
-1. Qt4 (only if you want the *optional* UI), on Ubuntu: `sudo apt install qt4-default`
+1. Qt4 (only if you want the optional UI), on Ubuntu: `sudo apt install qt4-default`
 1. I have had no real luck getting this to run on MacOS and I haven't tried
 Windows; you might be stuck with Linux
 1. A really strong desire to play this game or contribute, it is very immature
@@ -90,7 +90,7 @@ the final result. So, lets take this a small step further and add a GUI to the
 mix. This will play the game in real-time or step-by-step.
 
 ```bash
-bin/playback log/game.log # assuming you have logged a game.log
+bin/bundle exec bin/playback log/game.log # assuming you have logged a game.log
 ```
 
 If you want to see it in real-time, click the "Play" button. If you want to step
@@ -117,8 +117,8 @@ terminal". This is passed through the tee program and simultaneously sent to
 log/game.log and to the playback GUI.
 
 Finally. you can also view a transcript of a game. The log files are stored as
-base64-encoded JSON, but the game can unpack that for you. Pipe it through the
-`less` program for easy traversal and search:
+base 64 encoded JSON, but the game can unpack that for you. Pipe it through the
+`less` program for more easy traversal and search:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
@@ -143,7 +143,7 @@ bin/bundle exec bin/debug-aifc-game --fleet lib/examples/sit_n_scan.rb --fleet l
 
 This works exactly like `aifc-game`, except it drops you to a text debugging
 session that allows you to issue commands, and, most usefully of all, use the
-fantastic **pry** gem to introspect absolutely everything in the game.
+fantastic `pry` gem to introspect absolutely everything in the game engine.
 
 Extra credit: check out `bin/debug-aifc-game`. See that aspect being applied to
 `Paidgeeks::write_object`? Dig deep, figure out how that works, and you will be
@@ -151,7 +151,7 @@ a rubyfc debugging master.
 
 So, things you can do in a debugging session:
 * open terminal windows to tail the game and fleet(s) log files
-* open a `pry` session; $gc is a global is accessible here, and contains the
+* open a `pry` session; `$gc` is a global is accessible here, and contains the
 game coordinator with which you can inspect almost everything.
 * tick the game any number of game ticks at a time
 
@@ -169,12 +169,14 @@ prerequisites section:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-yard doc # makes sure the docs are up to date, not generally necessary
+yard doc # makes sure the docs are up to date, only needed once unless the docs change
 yard server # run the server
 ```
 
 At this point, just run your favorite web browser and point it at
-(http://localhost:8808/). The game-to-fleet API is decribed in
+(http://localhost:8808/). The game-to-fleet API is described in
 (http://localhost:8808/docs/Paidgeeks/RubyFC/Engine/GameStateChanger). The
 fleet-to-game API is described in
 (http://localhost:8808/docs/Paidgeeks/RubyFC/Engine/FleetMessageHandler).
+
+When you're done, exit the yard server with `CTRL-C`.
