@@ -9,11 +9,11 @@ module Paidgeeks
   module RubyFC
     module Engine
       class GameCoordinator
-        
+
         attr_reader :journal
         attr_reader :log_files
         attr_reader :gs
-        attr_reader :gsc 
+        attr_reader :gsc
         attr_reader :smp
         attr_reader :ke
         attr_reader :opts
@@ -25,7 +25,7 @@ module Paidgeeks
           log_files.each { |lf| lf.close }
         end
 
-        # Do all game setup based on opts. 
+        # Do all game setup based on opts.
         # Parameters:
         # - opts => {
         #     :game_log_file_name => baename of game log, file will be in LOG_DIR
@@ -45,7 +45,7 @@ module Paidgeeks
 
           # initialize game state
           @gs = Paidgeeks::RubyFC::Engine::GameState.new(@journal)
-          
+
           # load the config into game state
           Config.load(gs)
 
@@ -106,7 +106,7 @@ module Paidgeeks
               # fleet allowed to participate, mark as alive
               gsc::fleet_state_msg(gs, {
                 "type" => "fleet_state",
-                "fid" => fid, 
+                "fid" => fid,
                 "state" => "alive",
                 "fleet_source" => false,
                 })
@@ -124,7 +124,7 @@ module Paidgeeks
           gs.mission.prepare_to_run(gs)
         end # game_setup
 
-        # Tick the game once. This is the 'forever' loop for running the 
+        # Tick the game once. This is the 'forever' loop for running the
         # game. Call it repeatedly until the game is over, then get
         # the final mission report.
         # Parameters:
@@ -145,8 +145,11 @@ module Paidgeeks
           futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute(executor: Concurrent.global_immediate_executor) {begin_tick_fleet(fid, fleet)} }
           futures.each { |f| f.value } # force completion of each future
 
-          # update mobs' kinematics, energy, and do collosion detection
+          # update mobs' kinematics, energy, and do collision detection
           ke.update(last_time, gs)
+
+          # update fleet states; if a fleet has no mobs, it is dead
+          update_fleet_states()
 
           # end tick fleets
           futures = gs.fleets.collect { |fid, fleet| Concurrent::Future.execute(executor: Concurrent.global_immediate_executor) {end_tick_fleet(fid, fleet)} }
@@ -166,7 +169,7 @@ module Paidgeeks
             # logging (all fleets get to log, even dead ones)
             fm.process_logging(gs)
           else
-            gsc::msg_to_fleet(gs, fm, {"type" => "begin_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
+            gsc::msg_to_fleet(gs, fm, {"type" => "begin_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid})
             fm.cache_inputs(gs)
             fm.process_logging(gs)
             fm.process_inputs(smp, gs)
@@ -180,7 +183,7 @@ module Paidgeeks
           fm = fleet[:manager]
           return if :alive != fm.fleet_state
 
-          gsc::msg_to_fleet(gs, fm, {"type" => "end_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid}) 
+          gsc::msg_to_fleet(gs, fm, {"type" => "end_tick", "tick" => gs.tick, "time" => gs.time, "fid" => fid})
           fm.flush_output
 
           stop_at = Time.now + 1.0
@@ -201,6 +204,29 @@ module Paidgeeks
               "fleet_source" => false,
               })
           end
+        end
+
+        # Update fleets states; if it has no mobs, the fleet is dead
+        def update_fleet_states()
+          fid_count = {}
+          gs.mobs.each_value do |mob|
+            fid_count[mob.fid] = 0 if fid_count[mob.fid].nil?
+            fid_count[mob.fid] += 1
+          end
+          msgs_to_send = []
+          gs.fleets.each do |fid, _fleet|
+            if fid_count[fid].nil? || fid_count[fid] == 0
+              # batch the messages because each messages changes the gamestate
+              # that we are currently iterating over
+              msgs_to_send << {
+                "type" => "fleet_state",
+                "fid" => fid,
+                "state" => "dead",
+                "fleet_source" => false,
+                }
+            end
+          end
+          msgs_to_send.each { |msg| gsc.fleet_state_msg(gs, msg) }
         end
       end
     end

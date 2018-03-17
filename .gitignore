@@ -3,7 +3,8 @@ garbage.rb
 vendor/bundle
 .bundle/*
 db/*.sqlite3
-doc/*
 .DS_Store
+doc/
 tmp/
 .rake_tasks~
+.yardoc

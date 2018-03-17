@@ -2,7 +2,7 @@
 begin
   require 'pry'
 rescue LoadError
-  puts("Error loading pry gem, pry will not be available.")
+  $stderr.write("Error loading pry gem, pry will not be available.\n")
 end
 require 'tempfile'
 require_relative 'aifc-game'
@@ -24,8 +24,8 @@ Tempfile.open("rubyfc-debug-log") do |debug_log|
       begin
         $msg_hook.call(object)
       rescue Exception => e
-        puts("Debugger (hook) caught exception => #{e}")
-        puts(e.backtrace.join("\n\tfrom: "))
+        $stderr.write("Debugger (hook) caught exception => #{e}\n")
+        $stderr.write(e.backtrace.join("\n\tfrom: "))
       end
       result
     end

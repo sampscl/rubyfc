@@ -5,7 +5,7 @@ module Paidgeeks
     module Templates
       class BaseMob
 
-        @@default_turn_rate = Paidgeeks.deg_to_rad(5.0) # just do this computation once
+        @@default_turn_rate = Paidgeeks.deg_to_rad(15.0) # just do this computation once
 
         def self.max_turn_rate
           @@default_turn_rate

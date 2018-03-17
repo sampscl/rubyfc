@@ -18,9 +18,9 @@ module Paidgeeks
           munitions = []
           to_time = gs.time
 
-          futures = gs.mobs.collect do |mid,mob| 
+          futures = gs.mobs.collect do |mid,mob|
             munitions << mob if mob.template.munition?
-            Concurrent::Future.execute(executor: Concurrent.global_immediate_executor) do 
+            Concurrent::Future.execute(executor: Concurrent.global_immediate_executor) do
               update_energy(last_time, gs, mob)
 
               transient_mob = mob.integrate(to_time)
@@ -42,7 +42,7 @@ module Paidgeeks
               updated_mob = Paidgeeks::RubyFC::Engine::GameStateChanger::integrate_mob_msg(gs, msg)
 
               # check expiration of missiles and rockets
-              if Paidgeeks::RubyFC::Templates::Missile == updated_mob.template 
+              if Paidgeeks::RubyFC::Templates::Missile == updated_mob.template
                 if updated_mob.create_time + gs.config[:missile_life_time] < updated_mob.valid_time
                   Paidgeeks::RubyFC::Engine::GameStateChanger::delete_mob_msg(gs, {
                     "type" => "delete_mob",
@@ -71,9 +71,9 @@ module Paidgeeks
           process_collisions(last_time, munitions, gs) if munitions.any?
         end
 
-        # Detect and process munition collisions and target updates for a game update interval. This is 
-        # normally called from update, although it is possible (mostly for testing) to call independently. 
-        # This functionassumes that all mobs have been integrated to the same valid_time (which is true 
+        # Detect and process munition collisions and target updates for a game update interval. This is
+        # normally called from update, although it is possible (mostly for testing) to call independently.
+        # This functionassumes that all mobs have been integrated to the same valid_time (which is true
         # when called from update).
         # Parameters:
         # - last_time => the last time (same units as gs.time) that this method was called, used for interval calculations
@@ -94,7 +94,7 @@ module Paidgeeks
           return if not collisions.any?
 
           # reorder in ascending ttg order
-          collisions.sort! do |a,b| 
+          collisions.sort! do |a,b|
             result= -1 if a[:ttg] > b[:ttg]
             result = 0 if a[:ttg] == b[:ttg]
             result = 1 if a[:ttg] < b[:ttg]
@@ -118,7 +118,7 @@ module Paidgeeks
               "munition_mid" => collision[:interceptor_mob].mid,
               "target_mid" => collision[:mob2].mid,
               "exact_time" => collision[:interceptor_mob].valid_time + collision[:ttg],
-              "remaining_target_hitpoints" => collision[:mob2].hitpoints,
+              "remaining_target_hitpoints" => collision[:mob2].hitpoints - collision[:interceptor_mob].template.damage_caused,
               "fleet_source" => false,
               })
             # destroy interceptor
@@ -168,9 +168,9 @@ module Paidgeeks
           end
         end
 
-        # Check if mobs are within their mutual collision zone. 
-        # This assumes that mob1.valid_time == mob2.valid time, 
-        # and delta_time is offset from valid_time that needs 
+        # Check if mobs are within their mutual collision zone.
+        # This assumes that mob1.valid_time == mob2.valid time,
+        # and delta_time is offset from valid_time that needs
         # to be checked.
         def within_collision_zone(mob1, mob2, delta_time)
           mob1 = mob1.integrate(mob1.valid_time + delta_time)
