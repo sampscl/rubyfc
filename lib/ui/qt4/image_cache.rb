@@ -2,7 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'Qt'
 
-require_relative '../../utilities/class_from_string'
+require_relative '../../utilities/class_utils'
 
 module Paidgeeks
   module RubyFC
