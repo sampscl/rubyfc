@@ -16,7 +16,7 @@ module Paidgeeks
 
         def mission_description
 %{Deathmatch!
-  
+
 * Every fleet for itself until only one fleet remains
 * No credits
 * Munitions only cost energy
@@ -26,26 +26,37 @@ module Paidgeeks
 
         # Set game state defaults. This is called after the game state and engine components are
         # initialized but before any fleets are loaded. Use this method to override any configuration
-        # defaults in gs.config and to add any scenario-specific templates into the 
-        # Paidgeeks::RubyFC::Templates  module.
+        # defaults in gs.config and to add any scenario-specific templates into the
+        # Paidgeeks::RubyFC::Templates module or create customizations to the existing templates.
         # Parameters:
         # - gs => The gamestate
         def set_defaults(gs)
+          #
+          # Monkeypatches to create custom configuration
+          #
+
+          # in order to allow fighting with no credits, the cost of
+          # munitions must be zero.
+          Paidgeeks::RubyFC::Templates::Rocket.define_singleton_method(:credit_cost) { 0 }
+          Paidgeeks::RubyFC::Templates::Missile.define_singleton_method(:credit_cost) { 0 }
+
+          # Extend the range of the gunship's scanners to speed up the action
+          Paidgeeks::RubyFC::Templates::Gunship.define_singleton_method(:max_scan_range) { 2500.0 }
         end
 
         # Initialize mission. This is called after the game state and engine components are
-        # initialized but before any fleets are loaded. 
+        # initialized but before any fleets are loaded.
         # Parameters:
         # - gs => The gamestate
         def init_mission(gs)
           Paidgeeks.write_object(gs.journal, {"type" => "init_mission", "mission" => self.class.name})
         end
 
-        # Prepare the mission to run. This is called after set_defaults and init_mission, and 
+        # Prepare the mission to run. This is called after set_defaults and init_mission, and
         # after all the fleets are initialized and have provided fleet metadata to the game.
         # All living fleets in gs will be participants in this mission. This is a good time
         # to create the mobs that each fleet will start the mission with, as well as any
-        # mission-controlled fleets. 
+        # mission-controlled fleets.
         # Parameters:
         # - gs => The gamestate
         def prepare_to_run(gs)
@@ -58,18 +69,6 @@ module Paidgeeks
               "amount" => 0,
               "fleet_source" => false,
               })
-
-            #
-            # Monkeypatches to create custom configuration
-            #
-
-            # in order to allow fighting with no credits, the cost of 
-            # munitions must be zero. 
-            Paidgeeks::RubyFC::Templates::Rocket.define_singleton_method(:credit_cost) { 0 }
-            Paidgeeks::RubyFC::Templates::Missile.define_singleton_method(:credit_cost) { 0 }
-
-            # Extend the range of the gunship's scanners to speed up the action
-            Paidgeeks::RubyFC::Templates::Gunship.define_singleton_method(:max_scan_range) { 2500.0 }
 
             # each fleet gets 1 gunship starting in a random location
             gsc::create_mob_msg(gs, {
@@ -113,8 +112,8 @@ module Paidgeeks
         def event_munition_intercept(gs, mun_mid, target_mid)
         end
 
-        # Determine if the mission is complete. This is the last thing to happen at the 
-        # end of every tick. 
+        # Determine if the mission is complete. This is the last thing to happen at the
+        # end of every tick.
         # Parameters:
         # - gs => The gamestate
         # Returns:
@@ -123,9 +122,9 @@ module Paidgeeks
         def mission_complete?(gs)
           alive_count = 0
           last_examined = nil
-          gs.fleets.each do |fid, fleet| 
+          gs.fleets.each do |fid, fleet|
             if :alive == fleet[:manager].fleet_state
-              alive_count += 1 
+              alive_count += 1
               last_examined = fid
             end
           end

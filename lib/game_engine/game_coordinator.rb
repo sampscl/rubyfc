@@ -2,7 +2,7 @@ require 'thread'
 require 'concurrent'
 require_relative 'all'
 require_relative '../../config/constants'
-require_relative '../utilities/class_from_string'
+require_relative '../utilities/class_utils'
 require_relative '../missions/all'
 
 module Paidgeeks
@@ -68,6 +68,9 @@ module Paidgeeks
           # set mission info in config, this will be sent to all fleets later
           gs.config[:mission_title] = gs.mission.mission_title
           gs.config[:mission_description] = gs.mission.mission_description
+
+          # load mob templates into config, this will be sent to all fleets later
+          gs.config[:templates] = mob_templates_to_hash
 
           # load fleet(s)
           opts[:fleets].each_with_index do |ff,ndx|
@@ -228,8 +231,22 @@ module Paidgeeks
           end
           msgs_to_send.each { |msg| gsc.fleet_state_msg(gs, msg) }
         end
-      end
-    end
-  end
-end
+
+        def mob_templates_to_hash
+          result = {}
+          # all classes in the Templates module
+          klass_atoms = Paidgeeks::RubyFC::Templates.constants.select {|c| Paidgeeks::RubyFC::Templates.const_get(c).is_a? Class}
+          base_mob_methods = Paidgeeks::RubyFC::Templates::BaseMob.methods(false)
+          klass_atoms.each do |ka|
+            next if ka == :BaseMob
+            klass = Paidgeeks.class_from_string("Paidgeeks::RubyFC::Templates::#{ka.to_s}")
+            result[klass] = {}
+            base_mob_methods.each { |meth| result[klass][meth] = klass.send(meth) }
+          end
+          result
+        end # mob_templates_to_hash
+      end # GameCoordinator
+    end # Engine
+  end # RubyFC
+end # Paidgeeks
 require_relative '../logging/game_engine/game_coordinator_logging.rb'
