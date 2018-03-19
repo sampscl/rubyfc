@@ -26,8 +26,6 @@ available from Source Forge under the GPL V2 license.
 Windows; you might be stuck with Linux
 1. A really strong desire to play this game or contribute, it is very immature
 and liable to break in surprising ways
-1. Globally-installed `pry` gem; you don't have to have this, but it makes
-debugging your fleets much easier. Use `sudo gem install --no-user --nodoc pry`
 1. Globally-installed `YARD` for easy access to the APIs. Use
 `sudo gem install --no-user yard`
 
@@ -152,7 +150,9 @@ a rubyfc debugging master.
 So, things you can do in a debugging session:
 * open terminal windows to tail the game and fleet(s) log files
 * open a `pry` session; `$gc` is a global is accessible here, and contains the
-game coordinator with which you can inspect almost everything.
+game coordinator with which you can inspect almost everything. Within the `pry`
+session, the `pry-nav` gem is also loaded so you can step through the game with
+debugger commands. See https://github.com/nixme/pry-nav
 * tick the game any number of game ticks at a time
 
 ## The Fleet API

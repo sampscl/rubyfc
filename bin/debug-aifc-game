@@ -4,6 +4,13 @@ begin
 rescue LoadError
   $stderr.write("Error loading pry gem, pry will not be available.\n")
 end
+
+begin
+  require 'pry-nav'
+rescue LoadError
+  $stderr.write("Error loading pry-nav gem, pry-nav (debugger support) will not be available.\n")
+end
+
 require 'tempfile'
 require_relative 'aifc-game'
 require_relative '../lib/utilities/debug_utils'
