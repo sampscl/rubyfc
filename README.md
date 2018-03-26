@@ -43,19 +43,6 @@ cd rubyfc
 bin/bundle install --path vendor/bundle --no-deployment
 ```
 
-Most of RubyFC doesn't need rails, but there is code in there that does and that
-will only grow in the future as some of the TODOs are TODONE. You need a
-database and we'll do this with a production database even though you're
-officially a software developer. The reason to stay with the production database
-is that several of the helper scripts will work without the `RAILS_ENV`
-environment variable by assuming you mean `RAILS_ENV=production`. So lets get
-that little task out of the way. If you want to preserve your existing database,
-just don't do the `db:drop db:create`:
-
-```bash
-RAILS_ENV=production bin/rake db:drop db:create db:migrate db:seed
-```
-
 ## A Working Example
 There are some example programs and helper scripts in `lib/examples`. Lets make
 a very basic program fight an identical copy of itself. Depending on the speed
@@ -66,12 +53,11 @@ Open a terminal and:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/bundle exec bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
+bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
 ```
 
 Ok, that command line can be a lot to look at. Let's dissect it a bit:
-* `bin/bundle exec bin/aifc-game` Is necessary once, I think. After that you can
-shorten it to `bin/aifc-game`. This starts the game engine, but that's not enough
+* `bin/aifc-game` This starts the game engine, but that's not enough
 to get anything done...
 * `--fleet lib/examples/sit_n_scan.rb` adds a fleet to the game; remember that
 we are making this program fight itself and so you see the same fleet added twice
@@ -88,7 +74,7 @@ the final result. So, lets take this a small step further and add a GUI to the
 mix. This will play the game in real-time or step-by-step.
 
 ```bash
-bin/bundle exec bin/playback log/game.log # assuming you have logged a game.log
+bin/playback log/game.log # assuming you have logged a game.log
 ```
 
 If you want to see it in real-time, click the "Play" button. If you want to step
@@ -99,7 +85,7 @@ Want extra cool? Of course you do. The playback tool can zip through your game
 at light speed (CPU-defined speed of said light):
 
 ```bash
-cat log/game.log | bin/bundle exec bin/playback
+cat log/game.log | bin/playback
 ```
 
 Tying it all together, you can watch a game play live. too. This will run and
@@ -107,7 +93,7 @@ display the game as fast as your computer can do it:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/bundle exec bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file - --mission Paidgeeks::RubyFC::Missions::Deathmatch | tee log/game.log | bin/bundle exec bin/playback
+bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file - --mission Paidgeeks::RubyFC::Missions::Deathmatch | tee log/game.log | bin/playback
 ```
 
 Note that the game log is set to "-", which is shorthand for "log to the
@@ -120,7 +106,7 @@ base 64 encoded JSON, but the game can unpack that for you. Pipe it through the
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/bundle exec bin/aifc-game --just-show-transcript --log_file game.log | less
+bin/aifc-game --just-show-transcript --log_file game.log | less
 ```
 
 ## Debugging Your Fleet
@@ -135,7 +121,7 @@ So, how do you debug? One step at a time:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/bundle exec bin/debug-aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
+bin/debug-aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
 # Once in the shell, type "?" and press <Enter> to see a list of available commands
 ```
 
