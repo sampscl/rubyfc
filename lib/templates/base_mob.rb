@@ -70,6 +70,12 @@ module Paidgeeks
         def self.png_file_path
           nil # full path to the png file used to display this mob flying north or nil to use default
         end
+
+        def self.scanned_area
+          75.0 # square units, the amount of space scanned by any given scan.
+               # The width scanned is: width_in_radians = scanned_area / range
+               # at 75.0, a scan at 3600 units distance will be 1.1 degrees wide
+        end
       end
     end
   end
