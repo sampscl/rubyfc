@@ -9,6 +9,3 @@ field_width: 3600
 field_height: 2400
 missile_life_time: 20.0 # seconds
 rocket_life_time: 30.0 # seconds
-scanned_area: 75.0 # square units, the amount of space scanned by any given scan.
-                   # The width scanned is: width_in_radians = scanned_area / range
-                   # at 75.0, a scan at 3600 units distance will be 1.1 degrees wide
