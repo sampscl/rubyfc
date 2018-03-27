@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-require 'active_record'
 require 'optparse'
 require 'yaml'
 require 'fileutils'
@@ -7,7 +6,6 @@ require 'securerandom'
 require_relative '../lib/game_engine/all'
 require_relative '../config/constants'
 require_relative '../config/config'
-require_relative '../app/models/all'
 
 SIGNAL_QUEUE = []
 Signal.trap "TERM" do
@@ -16,10 +14,6 @@ end
 Signal.trap "INT" do
   SIGNAL_QUEUE << :INT
 end
-
-db = YAML::load_file(Paidgeeks::RubyFC::DB_YML_PATH)
-env = ENV.has_key?("RAILS_ENV") ? ENV["RAILS_ENV"] : "production"
-ActiveRecord::Base.establish_connection(db[env])
 
 def parse_command_line
   result = {

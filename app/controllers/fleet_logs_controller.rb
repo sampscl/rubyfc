@@ -1,2 +1,0 @@
-class FleetLogsController < ApplicationController
-end

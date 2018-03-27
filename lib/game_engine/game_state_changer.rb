@@ -442,7 +442,12 @@ module Paidgeeks
           y = source_ship.y_pos
           range = msg["range"]
           range_squared = range * range
-          half_theta = 0.5 * (gs.config[:scanned_area] / range) # scan twice this wide
+
+          # Get the ship template class; for the playback system, the template
+          # is a String, not a class. In that case, transform it into the
+          # ship class.
+          template = source_ship.template.is_a?(String) ? Paidgeeks.class_from_string(source_ship.template) : source_ship.template
+          half_theta = 0.5 * (template.scanned_area / range) # scan twice this wide
           center = msg["azimuth"]
           if center > 180.0 # negative angles to left, makes math below work
             center -= 360.0
