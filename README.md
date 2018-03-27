@@ -19,20 +19,18 @@ available from Source Forge under the GPL V2 license.
 1. [Making A New Mission](md/making_a_mission.md)
 
 ## Prerequisites
-1. A development environment; I use Linux, Atom, bash, and git with git-flow
-1.  Ruby, some new-ish version (I'm on 2.3)
-1. Qt4 (only if you want the optional UI), on Ubuntu: `sudo apt install qt4-default`
-1. I have had no real luck getting this to run on MacOS and I haven't tried
-Windows; you might be stuck with Linux
-1. A really strong desire to play this game or contribute, it is very immature
-and liable to break in surprising ways
+1. A development environment; I use MacOS, Linux, Atom, bash, and git with git-flow
+1. Ruby, some new-ish version (I'm on 2.3)
+1. Homebrew on MacOS (https://brew.sh)
+1. Qt4 (the GUI is optional but really useful), on Ubuntu: `sudo apt install qt4-default`,
+on MacOS: `brew tap cartr/qt4 && brew tap-pin cartr/qt4 && brew install qt@4`
 1. Globally-installed `YARD` for easy access to the APIs. Use
 `sudo gem install --no-user yard`
+1. A really strong desire to play this game or contribute, it is still very immature
 
 ## Getting Started
 
-These steps are only necessary if you are starting anew or have gotten a new
-version of RubyFC and need to bring your development environment up-to-date.
+### Starting anew
 
 First get all your prerequisites and get the gems installed. If you can do this
 without errors, you're on your way:
@@ -43,9 +41,34 @@ cd rubyfc
 bin/bundle install --path vendor/bundle --no-deployment
 ```
 
+### Updating to a new version
+
+New versions of RubyFC will become available from github. If you want to
+upgrade, you have some options. First, bring your repository up to date with
+github:
+
+```bash
+cd rubyfc # or wherever you cloned rubyfc
+git fetch origin --tags
+```
+
+RubyFC uses git-flow
+(https://datasift.github.io/gitflow/IntroducingGitFlow.html) so the latest
+code is always in the develop branch and the master branch is tagged with
+specific versions of the code. As RubyFC matures, it will also begin using
+semantic versioning (https://semver.org), so it should be pretty
+obvious when you run `git tag` which version is the most recent. So, after
+fetching you can:
+
+* Use a specific version `git checkout v1.0`
+* Get the latest development version `git checkout develop`
+
+Don't forget to run `bin/bundle install --path vendor/bundle --no-deployment`
+to make sure your gems are up to date.
+
 ## A Working Example
 There are some example programs and helper scripts in `lib/examples`. Lets make
-a very basic program fight an identical copy of itself. Depending on the speed
+a very basic program fight a slightly more advanced one. Depending on the speed
 of your computer this will execute in under a minute, and it won't produce
 much output.
 
@@ -53,14 +76,14 @@ Open a terminal and:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
+bin/aifc-game --fleet lib/examples/advanced_minimal.rb --fleet lib/examples/sit_n_scan.rb --log_file game.log --mission Paidgeeks::RubyFC::Missions::Deathmatch
 ```
 
 Ok, that command line can be a lot to look at. Let's dissect it a bit:
 * `bin/aifc-game` This starts the game engine, but that's not enough
 to get anything done...
-* `--fleet lib/examples/sit_n_scan.rb` adds a fleet to the game; remember that
-we are making this program fight itself and so you see the same fleet added twice
+* `--fleet lib/examples/advanced_minimal.rb` adds a fleet to the game
+* `--fleet lib/examples/sit_n_scan.rb` adds a fleet to the game
 * `--log_file game.log` RubyFC works on a pure message-passing system. Every action
 the game engine takes is represented by a message (stored as base 64 encoded
 JSON) stored one message per line.
@@ -93,14 +116,14 @@ display the game as fast as your computer can do it:
 
 ```bash
 cd rubyfc # or wherever you cloned rubyfc
-bin/aifc-game --fleet lib/examples/sit_n_scan.rb --fleet lib/examples/sit_n_scan.rb --log_file - --mission Paidgeeks::RubyFC::Missions::Deathmatch | tee log/game.log | bin/playback
+bin/aifc-game --fleet lib/examples/advanced_minimal.rb --fleet lib/examples/sit_n_scan.rb --log_file - --mission Paidgeeks::RubyFC::Missions::Deathmatch | tee log/game.log | bin/playback
 ```
 
 Note that the game log is set to "-", which is shorthand for "log to the
 terminal". This is passed through the tee program and simultaneously sent to
 log/game.log and to the playback GUI.
 
-Finally. you can also view a transcript of a game. The log files are stored as
+Finally, you can also view a transcript of a game. The log files are stored as
 base 64 encoded JSON, but the game can unpack that for you. Pipe it through the
 `less` program for more easy traversal and search:
 
