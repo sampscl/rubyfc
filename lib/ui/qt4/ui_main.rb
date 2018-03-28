@@ -112,7 +112,8 @@ module Paidgeeks
               return if msg.nil?
               was_tick = (msg["type"] == "tick") ? true : false
               if was_tick
-                playback_widget.repaint
+                playback_widget.scan_reports = gs.tick_scan_reports
+                playback_widget.repaint()
                 self.gs.fleets.each {|_fid, fleet| fleet[:manager].flush_output }
               end
               process_msg(msg)
@@ -134,7 +135,8 @@ module Paidgeeks
               msg = Paidgeeks.read_object(log_file, 0.0)
               return if msg.nil?
               if msg["type"] == "tick"
-                playback_widget.repaint
+                playback_widget.scan_reports = gs.tick_scan_reports
+                playback_widget.repaint()
                 self.gs.fleets.each {|_fid, fleet| fleet[:manager].flush_output }
               end
               process_msg(msg)

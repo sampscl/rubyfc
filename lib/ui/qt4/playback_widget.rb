@@ -14,6 +14,8 @@ module Paidgeeks
         attr_accessor :image_cache
         attr_accessor :painter
         attr_accessor :white_brush
+        attr_accessor :white_pen
+        attr_accessor :scan_reports
 
         def initialize(gs, window)
           if(window)
@@ -26,6 +28,8 @@ module Paidgeeks
           setStyleSheet("background-color: black;")
           self.painter = Qt::Painter.new
           self.white_brush = Qt::Brush.new(Qt::Color.new(225, 225, 225))
+          self.white_pen = Qt::Pen.new(Qt::Color.new(225, 225, 225))
+          self.scan_reports = []
         end
 
         def sizeHint
@@ -36,6 +40,7 @@ module Paidgeeks
 
           painter.begin(self)
           painter.set_brush(white_brush)
+          painter.set_pen(white_pen)
 
           gs.mobs.each do |mid, mob|
             center_x, center_y = game_pos_to_screen(mob.x_pos, mob.y_pos)
@@ -44,7 +49,9 @@ module Paidgeeks
             painter.draw_image(point, img)
           end
 
-          gs.tick_scan_reports.each do |sr|
+          # use cached copy in case painting happens after the messages have
+          # been processed and the per-tick scan reports are flushed
+          scan_reports.each do |sr|
             sm = sr["scan_msg"]
 
             source_mob = gs.mobs[sm["source_ship"]]
@@ -52,10 +59,10 @@ module Paidgeeks
 
             sm = sr["scan_msg"]
             angle_radians = Paidgeeks.deg_to_rad(sm["azimuth"])
-            width_radians = Paidgeeks.deg_to_rad(sr["scan_width"])
+            half_width_radians = Paidgeeks.deg_to_rad(sr["scan_width"]) / 2.0
 
-            ccw_radians = angle_radians - width_radians
-            cw_radians = angle_radians + width_radians
+            ccw_radians = angle_radians - half_width_radians
+            cw_radians = angle_radians + half_width_radians
 
             range = sm["range"]
 
