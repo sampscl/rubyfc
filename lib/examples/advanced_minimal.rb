@@ -140,7 +140,7 @@ class Cruiser
             "munition_heading" => Paidgeeks::rad_to_deg(course_rad),
             "source_ship" => mob.mid,
             "target" => enemy.mid,
-            "launch_param" => "nick-knack-paddy-whack-give-a-dog-a-bone"
+            "launch_param" => "",
             })
         end
       end
@@ -177,17 +177,9 @@ end # class Cruiser
 # the command line. Which happens to be *exactly* what RubyFC does
 # when you give it a fleet file name.
 def main
-  # always write your fleet metadata first
-  Fleet.send_msg({
-      "type"       => "set_fleet_metadata",
-      "author"     => "Clay Sampson",
-      "fleet_name" => "Advanced Minimal Example 1.0",
-    })
-
-  fleet = Fleet.new
-
   # Keep going forever, RubyFC will clean up the fleets automagically
   loop do
+
     # Read a message. Use a timeout of 1 second to
     # be a good player and not try to eat all the
     # available CPU time by spinning in a loop.
@@ -197,8 +189,12 @@ def main
     next if msg.nil?
 
     # process the message
-    fleet.process(msg)
+    process_msg(msg)
   end
+end
+
+def process_msg(msg)
+  $fleet.process(msg)
 end
 
 # Useful ruby trick: if the name of this file (__FILE__) is also
@@ -206,6 +202,13 @@ end
 # so we'll act like a program. Otherwise, this file was loaded
 # some other way (like 'require', or 'load') and there is nothing
 # to do.
+$fleet = Fleet.new
+# always write your fleet metadata first
+Fleet.send_msg({
+    "type"       => "set_fleet_metadata",
+    "author"     => "Clay Sampson",
+    "fleet_name" => "Advanced Minimal Example 1.0",
+  })
 if __FILE__ == $0
   main
 end

@@ -27,7 +27,7 @@ def parse_command_line
     opts.on("--fleet=", "Specify fleet file") do |opt|
       result[:fleets] << opt
     end
-    opts.on("--log_file=", "Specify the game log file") do |opt|
+    opts.on("--log_file=", "Specify the game log file, use '-' for stdout") do |opt|
       result[:game_log_file_name] = opt
     end
 
