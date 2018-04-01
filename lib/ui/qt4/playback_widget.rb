@@ -55,6 +55,7 @@ module Paidgeeks
             sm = sr["scan_msg"]
 
             source_mob = gs.mobs[sm["source_ship"]]
+            next if source_mob.nil?
             start_x, start_y = game_pos_to_screen(source_mob.x_pos, source_mob.y_pos)
 
             sm = sr["scan_msg"]
