@@ -402,7 +402,7 @@ module Paidgeeks
         #     "template" => target_mob.template.class.name,
         #     "fleet_source" => false | true,
         #   }
-        def missile_target_update_msg(gs, msg)
+        def self.missile_target_update_msg(gs, msg)
           mob = gs.mobs[msg["munition_mid"]]
           fleet = gs.fleets[mob.fid]
           msg_to_fleet(gs, fleet[:manager], msg.merge({"type" => "missile_target_update_notify"}))
