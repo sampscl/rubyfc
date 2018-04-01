@@ -10,10 +10,14 @@ module Paidgeeks
     # - :zombie => the pid is dead but has not bee reaped yet (you probably need to call Process.detatch(pid))
     #
     def self.pid_state(pid)
-      result = `ps -o state -p #{pid}`.chomp
-      lines = result.lines
-      return :dead if lines.length == 1 # 1 for the header, 2 if header+processes status line
-      lines[1] =~ /^[^Zz]/ ? :alive : :zombie
+      begin
+        result = `ps -o state -p #{pid}`.chomp
+        lines = result.lines
+        return :dead if lines.length == 1 # 1 for the header, 2 if header+processes status line
+        lines[1] =~ /^[^Zz]/ ? :alive : :zombie
+      rescue
+        :alive # assume alive? We don't know and `ps` blew up on us
+      end
     end
   end
 end

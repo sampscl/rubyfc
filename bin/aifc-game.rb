@@ -59,21 +59,23 @@ def main
     journal = opts[:game_log_file_name] == "-" ? $stdout : File.open(journal_file_name,"w+t")
     opts[:journal] = journal
 
-    gc.game_setup(opts)
+    begin
+      gc.game_setup(opts)
 
-    run_game(gc)
+      run_game(gc)
 
-    report = gc.gs.mission.mission_report(gc.gs)
+      report = gc.gs.mission.mission_report(gc.gs)
 
-    Paidgeeks::RubyFC::Engine::GameStateChanger::mission_report_msg(gc.gs, {
-      "type" => "mission_report",
-      "report" => report,
-      "fleet_source" => false,
-      })
+      Paidgeeks::RubyFC::Engine::GameStateChanger::mission_report_msg(gc.gs, {
+        "type" => "mission_report",
+        "report" => report,
+        "fleet_source" => false,
+        })
 
-    $stderr.write("Mission report: #{report.inspect}\n")
-
-    gc.cleanup
+      $stderr.write("Mission report: #{report.inspect}\n")
+    ensure
+      gc.cleanup
+    end
   else
     Paidgeeks::RubyFC::Engine::Transcript::playback_until(opts) { SIGNAL_QUEUE.any? }
   end
