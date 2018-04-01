@@ -104,7 +104,7 @@ class Cruiser
       { x: 3500, y: 2300},
       { x: 3500, y: 100},
       { x: 100, y: 100},
-    ]
+    ].shuffle
     self.mob = Paidgeeks::RubyFC::Mob.new
     mob.mid = mid
   end
